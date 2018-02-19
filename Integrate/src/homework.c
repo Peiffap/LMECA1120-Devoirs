@@ -36,11 +36,7 @@ double integrate(double x[3], double y[3], double (*f) (double, double))
 
 #endif
 
-<<<<<<< HEAD
     return I*fabs((x[0] - x[1]) * (y[0]- y[2]) - (x[0] - x[2]) * (y[0] - y[1]));
-=======
-    return I*fabs((x[0] - x[1]) * (y[0]- y[2]) - (x[0] - x[2]) * (y[0] - y[1]));;
->>>>>>> 61575e9d9d6d152b0be966f2fc2bb274978cfe63
 }
 
 double integrateRecursive(double x[3], double y[3], double (*f)(double,double), int n)
