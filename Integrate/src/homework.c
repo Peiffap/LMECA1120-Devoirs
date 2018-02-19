@@ -9,7 +9,7 @@
 
 double integrate(double x[3], double y[3], double (*f) (double, double))
 {
-    double I = 0;
+  double I = 0;
 	double xLoc[3] = { 1.0 / 6.0, 1.0 / 6.0, 2.0 / 3.0 };
 	double yLoc[3] = { 1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0 };
 	double wLoc[3] = { 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0 };
@@ -23,9 +23,6 @@ double integrate(double x[3], double y[3], double (*f) (double, double))
 	}
 
 //
-// ... A modifier :-)
-//
-//
 // Pour dessiner l'element, les sommets du triangle :-)
 // Decommenter la ligne pour dessiner aussi les points d'integration
 //
@@ -36,10 +33,10 @@ double integrate(double x[3], double y[3], double (*f) (double, double))
     glColor3f (1.0,1.0,1.0); glfemDrawElement(x,y,3);
     glColor3f (1.0,0.0,0.0); glfemDrawNodes(x,y,3);
     glColor3f (0.0,0.0,1.0); glfemDrawNodes(xLoc,yLoc,3);
-    
+
 #endif
 
-    return I;
+    return I*fabs((x[0] - x[1]) * (y[0]- y[2]) - (x[0] - x[2]) * (y[0] - y[1]));
 }
 
 double integrateRecursive(double x[3], double y[3], double (*f)(double,double), int n)
@@ -52,9 +49,7 @@ double integrateRecursive(double x[3], double y[3], double (*f)(double,double), 
 	double I = integrate(x, y, f);
 //
 //
-//    
-     
+//
+
     return I;
 }
-
-
