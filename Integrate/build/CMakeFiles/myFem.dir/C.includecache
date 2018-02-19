@@ -50,11 +50,11 @@ GL/glu.h
 vulkan/vulkan.h
 -
 
-/home/admino/Documents/LMECA1120-Devoirs/src/fem.c
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/fem.c
 fem.h
-/home/admino/Documents/LMECA1120-Devoirs/src/fem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/fem.h
 
-/home/admino/Documents/LMECA1120-Devoirs/src/fem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/fem.h
 stdio.h
 -
 stdlib.h
@@ -64,11 +64,11 @@ math.h
 string.h
 -
 
-/home/admino/Documents/LMECA1120-Devoirs/src/glfem.c
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/glfem.c
 glfem.h
-/home/admino/Documents/LMECA1120-Devoirs/src/glfem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/glfem.h
 
-/home/admino/Documents/LMECA1120-Devoirs/src/glfem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/glfem.h
 stdio.h
 -
 stdlib.h
@@ -78,23 +78,23 @@ math.h
 string.h
 -
 fem.h
-/home/admino/Documents/LMECA1120-Devoirs/src/fem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/fem.h
 GLFW/glfw3.h
 -
 
-/home/admino/Documents/LMECA1120-Devoirs/src/homework.c
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/homework.c
 stdio.h
 -
 math.h
 -
 glfem.h
-/home/admino/Documents/LMECA1120-Devoirs/src/glfem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/glfem.h
 
-/home/admino/Documents/LMECA1120-Devoirs/src/main.c
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/main.c
 stdio.h
 -
 math.h
 -
 glfem.h
-/home/admino/Documents/LMECA1120-Devoirs/src/glfem.h
+/home/admino/Documents/LMECA1120-Devoirs/Integrate/src/glfem.h
 

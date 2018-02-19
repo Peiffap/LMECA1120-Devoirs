@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = -Dgraphic
 
-C_INCLUDES = -I/home/admino/Documents/LMECA1120-Devoirs/glfw-3.2.1/include 
+C_INCLUDES = -I/home/admino/Documents/LMECA1120-Devoirs/Integrate/glfw-3.2.1/include 
 
