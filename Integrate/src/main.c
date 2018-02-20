@@ -41,12 +41,12 @@ int main()
 
 int main()
 {
-    //double x[3] = {0, 1, 0};
-    //double y[3] = {0, 0, 1};
+    double x[3] = {0, 1, 0};
+    double y[3] = {0, 0, 1};
     char theMessage[256];
 
-    double x[3] = {-1, 1, 2};
-    double y[3] = {0, 5, 1};
+    // double x[3] = {-1, 1, 2};
+    // double y[3] = {0, 5, 1};
 
     GLFWwindow* window = glfemInit("MECA1120 : homework 1 ");
     glfwMakeContextCurrent(window);
