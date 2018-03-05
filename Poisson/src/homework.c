@@ -65,9 +65,9 @@ femPoissonProblem *femPoissonCreate(const char *filename)
 			//
 			double **A = theProblem->system->A;
 			double *B = theProblem->system->B;
-			double *xsi = (double *)malloc(theProblem->mesh->nLocalNode * sizeof(double));
-			double *eta = (double *)malloc(theProblem->mesh->nLocalNode * sizeof(double));
-			theProblem->space->x2(xsi, eta);
+			double *xi = (double *) malloc(theProblem->mesh->nLocalNode * sizeof(double));
+			double *eta = (double *) malloc(theProblem->mesh->nLocalNode * sizeof(double));
+			theProblem->space->x2(xi, eta);
 			int i;
 			for (i = 0; i < theProblem->mesh->nElem; i++)
 			{
@@ -96,7 +96,7 @@ femPoissonProblem *femPoissonCreate(const char *filename)
 			{
 
 			}
-			free(xsi);
+			free(xi);
 			free(eta);
 			printf("sys\n");
 			femFullSystemPrint(theProblem->system);
