@@ -1,6 +1,3 @@
-Version 1
-
-
 #include"fem.h"
 
 // Thomas
