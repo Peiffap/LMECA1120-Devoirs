@@ -3,9 +3,9 @@
 
 #ifndef NOCONTACTITERATE
 
-double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)  
+double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 {
-    int n = myGrains->n; 
+    int n = myGrains->n;
     double *x          = myGrains->x;
     double *y          = myGrains->y;
     double *m          = myGrains->m;
@@ -16,9 +16,9 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
     double *dvContacts = myGrains->dvContacts;
     double rIn         = myGrains->radiusIn;
     double rOut        = myGrains->radiusOut;
-    
+
     double zeta = 0.0;
- 
+
 //
 //  A FAIRE.... :-)    Difficile, difficile :-)
 //
@@ -44,30 +44,38 @@ void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
     double gx          = myGrains->gravity[0];
     double gy          = myGrains->gravity[1];
 
- 
-// 
-// -1- Calcul des nouvelles vitesses des grains sur base de la gravité et de la trainee
+
+//
+// -1- Calcul des nouvelles vitesses des grains sur base de la gravitï¿½ et de la trainee
 //
 
 //
 //  A FAIRE.... :-)    La loi du grand Newton : so easy !
 //
 
+	for (i = 0; i < n; i++)
+	{
+		vx[i] += (gx - (gamma * vx[i] / m[i])) * dt;
+		vy[i] += (gy - (gamma * vy[i] / m[i])) * dt;
+	}
+
 //
-// -2- Correction des vitesses pour tenir compte des contacts        
-//       
+// -2- Correction des vitesses pour tenir compte des contacts
+//
     do {
         zeta = femGrainsContactIterate(myGrains,dt,iter);
         iter++; }
     while ((zeta > tol/dt && iter < iterMax) || iter == 1);
     printf("iterations = %4d : error = %14.7e \n",iter-1,zeta);
- 
-//  
+
+//
 // -3- Calcul des nouvelles positions sans penetrations de points entre eux
 //
-    for (i = 0; i < n; ++i) {
-        x[i] += vx[i] * dt;
-        y[i] += vy[i] * dt; }
+    for (i = 0; i < n; ++i)
+	{
+        x[i] += vx[i] * dt / m[i];
+        y[i] += vy[i] * dt / m[i];
+	}
 }
 
 
