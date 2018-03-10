@@ -23,6 +23,58 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 //  A FAIRE.... :-)    Difficile, difficile :-)
 //
 
+	int i, j;
+	double norm[2];
+	double gamma, rCentre, deltax, deltay, deltav, vNorm, miSum, mjSum, ddeltavc gammaInner, gammaOuter;
+	double deltavc = 0;
+	double deltavb = 0;
+
+	for (i = 0; i < n; i++)
+	{
+		// Distances
+		rCentre = sqrt((x[i] * x[i]) + (y[i] * y[i]));
+		gammaOuter = rOut - rCentre - r[i];
+		gammaInner = rCentre - rIn - r[i];
+		norm[0] = x[i] / rCentre;
+		norm[1] = y[i] / rCentre;
+		vNorm = vx[i] * norm[0] + vy[i] * norm[1];
+		deltav = fmax(fmax(0, vNorm + deltavb - (gammaOuter / dt)), -vNorm - deltavb - (gammaInner / dt)) - deltavb;
+
+
+		for (j = i + 1; j < n; j++)
+		{
+			// Differences de position
+			deltax = x[j] - x[i];
+			deltay = y[j] - y[i];
+
+			// Distances
+			rCentre = sqrt(deltax * deltax + deltay * deltay);
+			gamma = rCentre - r[i] - r[j];
+
+			// Normale et vitesse normale
+			norm[0] = deltax / rCentre;
+			norm[1] = deltay / rCentre;
+			vNorm = (vx[i] - vx[j]) * norm[0] + (vy[i] - vy[j]) * norm[1];
+
+			// Increment de vitesse
+			deltav = fmax(0, (vNorm + deltavc - gamma / dt)) - deltavc;
+
+			// Calcul des masses reduites
+			miSum = m[i] / (m[i] + m[j]);
+			mjSum = m[j] / (m[i] + m[j]);
+
+			// Calcul des changements de vitesse
+			vx[i] -= deltav * norm[0] * miSum;
+			vx[j] += deltav * norm[0] * mjSum;
+			vy[i] -= deltav * norm[1] * miSum;
+			vy[j] += deltav * norm[1] * mjSum;
+
+			// Paramètres supplementaires
+			ddeltavc = deltav;
+			zeta = fmax(zeta, fabs(deltav));
+		}
+	}
+
     return zeta;
 
 }
