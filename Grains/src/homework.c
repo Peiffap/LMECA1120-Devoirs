@@ -62,9 +62,11 @@ void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
 //
 // -2- Correction des vitesses pour tenir compte des contacts
 //
-    do {
+    do
+	{
         zeta = femGrainsContactIterate(myGrains,dt,iter);
-        iter++; }
+        iter++;
+	}
     while ((zeta > tol/dt && iter < iterMax) || iter == 1);
     printf("iterations = %4d : error = %14.7e \n",iter-1,zeta);
 
@@ -73,8 +75,8 @@ void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
 //
     for (i = 0; i < n; ++i)
 	{
-        x[i] += vx[i] * dt / m[i];
-        y[i] += vy[i] * dt / m[i];
+        x[i] += vx[i] * dt;
+        y[i] += vy[i] * dt;
 	}
 }
 
