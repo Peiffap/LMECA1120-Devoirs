@@ -24,25 +24,38 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 //
 
 	int i, j;
+	int k = 0;
 	double norm[2];
-	double gamma, rCentre, deltax, deltay, deltav, vNorm, miSum, mjSum, ddeltavc gammaInner, gammaOuter;
-	double deltavc = 0;
-	double deltavb = 0;
+	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavb, deltavc;
 
 	for (i = 0; i < n; i++)
 	{
+		// deltavb = 0;
+
 		// Distances
 		rCentre = sqrt((x[i] * x[i]) + (y[i] * y[i]));
 		gammaOuter = rOut - rCentre - r[i];
 		gammaInner = rCentre - rIn - r[i];
+
+		// Normale et vitesse normale
 		norm[0] = x[i] / rCentre;
 		norm[1] = y[i] / rCentre;
-		vNorm = vx[i] * norm[0] + vy[i] * norm[1];
-		deltav = fmax(fmax(0, vNorm + deltavb - (gammaOuter / dt)), -vNorm - deltavb - (gammaInner / dt)) - deltavb;
+		vn = vx[i] * norm[0] + vy[i] * norm[1];
 
+		// Increments de vitesse
+		deltav = fmax(fmax(0, vn + deltavb - (gammaOuter / dt)), -vn - deltavb - (gammaInner / dt)) - deltavb;
+		vx[i] -= deltav * norm[0];
+		vy[i] -= deltav * norm[1];
+		deltavb += deltav;
+
+		// Autres parametres
+		zeta = fmax(zeta, abs(deltav));
+		dvBoundary[i] += deltav;
 
 		for (j = i + 1; j < n; j++)
 		{
+			deltavc = 0;
+
 			// Differences de position
 			deltax = x[j] - x[i];
 			deltay = y[j] - y[i];
@@ -54,10 +67,10 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			// Normale et vitesse normale
 			norm[0] = deltax / rCentre;
 			norm[1] = deltay / rCentre;
-			vNorm = (vx[i] - vx[j]) * norm[0] + (vy[i] - vy[j]) * norm[1];
+			vn = (vx[i] - vx[j]) * norm[0] + (vy[i] - vy[j]) * norm[1];
 
 			// Increment de vitesse
-			deltav = fmax(0, (vNorm + deltavc - gamma / dt)) - deltavc;
+			deltav = fmax(0, (vn + deltavc - gamma / dt)) - deltavc;
 
 			// Calcul des masses reduites
 			miSum = m[i] / (m[i] + m[j]);
@@ -70,8 +83,9 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			vy[j] += deltav * norm[1] * mjSum;
 
 			// Paramètres supplementaires
-			ddeltavc = deltav;
+			deltavc += deltav;
 			zeta = fmax(zeta, fabs(deltav));
+			dvContacts[k++] += deltav;
 		}
 	}
 

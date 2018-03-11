@@ -57,8 +57,8 @@ int main(void)
             printf("Time = %4g : ",t);
   //
   // A decommenter pour pouvoir progresser pas par pas
-  //          printf("press CR to compute the next time step >>");
-  //          char c= getchar();
+            // printf("press CR to compute the next time step >>");
+			// char c= getchar();
   //
             femGrainsUpdate(theGrains,dt,tol,iterMax);
             t += dt; }
