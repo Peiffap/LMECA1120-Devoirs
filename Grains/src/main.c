@@ -16,14 +16,14 @@ int main(void)
 {
 
 
-    int    n = 100;
-    double radius    = 0.05;
+    int    n = 15;
+    double radius    = 0.1;
     double mass      = 0.1;
     double radiusIn  = 0.5;
     double radiusOut = 2.0;
     double dt      = 1e-1;
     double tEnd    = 8.0;
-    double tol     = 1e-3;
+    double tol     = 1e-6;
     double t       = 0;
     double iterMax = 100;
 	femGrains* theGrains = femGrainsCreateSimple(n,radius,mass,radiusIn,radiusOut);

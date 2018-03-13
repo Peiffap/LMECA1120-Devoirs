@@ -17,6 +17,20 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
     double rIn         = myGrains->radiusIn;
     double rOut        = myGrains->radiusOut;
 
+	if (iter == 0)
+	{
+		int ii;
+		for (ii = 0; ii < n*(n-1)/2.0; ii++)
+		{
+			dvContacts[ii] = 0.0;
+		}
+		for (ii = 0; ii < n; ii++)
+		{
+			dvBoundary[ii] = 0.0;
+		}
+		return 0.0;
+	}
+
     double zeta = 0.0;
 
 //
@@ -27,15 +41,11 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 	int k = 0;
 	double *norm = (double *) malloc(2 * sizeof(double));
 	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter;
-	double deltavb = 0;
-	double deltavc = 0;
 
 	for (i = 0; i < n; i++)
 	{
-		deltavb = 0;
-
 		// Distances
-		rCentre = sqrt((x[i] * x[i]) + (y[i] * y[i]));
+		rCentre = sqrt(pow(x[i], 2) + pow(y[i], 2));
 		gammaOuter = rOut - rCentre - r[i];
 		gammaInner = rCentre - rIn - r[i];
 
@@ -45,27 +55,24 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 		vn = vx[i] * norm[0] + vy[i] * norm[1];
 
 		// Increments/changements de vitesse
-		deltavOuter = fmax(0, vn + deltavb - (gammaOuter / dt));
-		deltavInner = fmax(0, -vn - deltavb - (gammaInner / dt));
-		deltav = deltavOuter - deltavInner - deltavb;
+		deltavOuter = fmax(0, vn + dvBoundary[i] - (gammaOuter / dt));
+		deltavInner = fmax(0, -vn - dvBoundary[i] - (gammaInner / dt));
+		deltav = deltavOuter - deltavInner - dvBoundary[i];
 		vx[i] -= deltav * norm[0];
 		vy[i] -= deltav * norm[1];
-		deltavb += deltav;
 
 		// Autres parametres
-		zeta = fmax(zeta, abs(deltav));
 		dvBoundary[i] += deltav;
+		zeta = fmax(zeta, abs(deltav));
 
 		for (j = i + 1; j < n; j++)
 		{
-			deltavc = 0;
-
 			// Differences de position
 			deltax = x[j] - x[i];
 			deltay = y[j] - y[i];
 
 			// Distances
-			rCentre = sqrt(deltax * deltax + deltay * deltay);
+			rCentre = sqrt(pow(deltax,2) + pow(deltay,2));
 			gamma = rCentre - r[i] - r[j];
 
 			// Normale et vitesse normale
@@ -74,22 +81,21 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			vn = (vx[i] - vx[j]) * norm[0] + (vy[i] - vy[j]) * norm[1];
 
 			// Increment de vitesse
-			deltav = fmax(0, (vn + deltavc - gamma / dt)) - deltavc;
+			deltav = fmax(0.0, (vn + dvContacts[k] - gamma / dt)) - dvContacts[k];
 
 			// Calcul des masses reduites
 			miSum = m[i] / (m[i] + m[j]);
 			mjSum = m[j] / (m[i] + m[j]);
 
 			// Calcul des changements de vitesse
-			vx[i] -= deltav * norm[0] * miSum;
-			vx[j] += deltav * norm[0] * mjSum;
-			vy[i] -= deltav * norm[1] * miSum;
-			vy[j] += deltav * norm[1] * mjSum;
+			vx[i] -= deltav * norm[0] * mjSum;
+			vx[j] += deltav * norm[0] * miSum;
+			vy[i] -= deltav * norm[1] * mjSum;
+			vy[j] += deltav * norm[1] * miSum;
 
 			// Paramètres supplementaires
-			deltavc += deltav;
-			zeta = fmax(zeta, fabs(deltav));
 			dvContacts[k++] += deltav;
+			zeta = fmax(zeta, fabs(deltav));
 		}
 	}
 	free(norm);
