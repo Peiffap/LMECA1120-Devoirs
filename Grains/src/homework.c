@@ -26,9 +26,9 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 	int i, j;
 	int k = 0;
 	double *norm = (double *) malloc(2 * sizeof(double));
-	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavb, deltavc, deltavInner, deltavOuter;
-	deltavb = 0;
-	deltavc = 0;
+	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter;
+	double deltavb = 0;
+	double deltavc = 0;
 
 	for (i = 0; i < n; i++)
 	{
@@ -94,7 +94,6 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 	}
 	free(norm);
     return zeta;
-
 }
 
 #endif

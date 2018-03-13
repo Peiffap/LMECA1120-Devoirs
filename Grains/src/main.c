@@ -23,7 +23,7 @@ int main(void)
     double radiusOut = 2.0;
     double dt      = 1e-1;
     double tEnd    = 8.0;
-    double tol     = 1e-6;
+    double tol     = 1e-3;
     double t       = 0;
     double iterMax = 100;
 	femGrains* theGrains = femGrainsCreateSimple(n,radius,mass,radiusIn,radiusOut);
