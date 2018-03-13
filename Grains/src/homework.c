@@ -17,7 +17,7 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			dvBoundary[ii] = 0.0;
 			dvContacts[ii] = 0.0;
 		}
-		for (ii = n; ii < n*(n-1)/2.0; ii++)
+		for (ii = n; ii < n * (n - 1) / 2.0; ii++)
 		{
 			dvContacts[ii] = 0.0;
 		}
