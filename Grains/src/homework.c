@@ -5,42 +5,42 @@
 
 double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 {
-    int n = myGrains->n;
-    double *x          = myGrains->x;
-    double *y          = myGrains->y;
-    double *m          = myGrains->m;
-    double *r          = myGrains->r;
-    double *vy         = myGrains->vy;
-    double *vx         = myGrains->vx;
-    double *dvBoundary = myGrains->dvBoundary;
-    double *dvContacts = myGrains->dvContacts;
-    double rIn         = myGrains->radiusIn;
-    double rOut        = myGrains->radiusOut;
+	int n = myGrains->n;
+	double *dvBoundary = myGrains->dvBoundary;
+	double *dvContacts = myGrains->dvContacts;
 
 	if (iter == 0)
 	{
 		int ii;
-		for (ii = 0; ii < n*(n-1)/2.0; ii++)
-		{
-			dvContacts[ii] = 0.0;
-		}
 		for (ii = 0; ii < n; ii++)
 		{
 			dvBoundary[ii] = 0.0;
+			dvContacts[ii] = 0.0;
+		}
+		for (ii = n; ii < n*(n-1)/2.0; ii++)
+		{
+			dvContacts[ii] = 0.0;
 		}
 		return 0.0;
 	}
 
-    double zeta = 0.0;
+	//
+	//  A FAIRE.... :-)    Difficile, difficile :-)
+	//
 
-//
-//  A FAIRE.... :-)    Difficile, difficile :-)
-//
+	double *x          = myGrains->x;
+	double *y          = myGrains->y;
+	double *m          = myGrains->m;
+	double *r          = myGrains->r;
+	double *vy         = myGrains->vy;
+	double *vx         = myGrains->vx;
+	double rIn         = myGrains->radiusIn;
+	double rOut        = myGrains->radiusOut;
 
 	int i, j;
 	int k = 0;
-	double *norm = (double *) malloc(2 * sizeof(double));
-	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter;
+	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter, nx, ny, mSum;
+	double zeta = 0.0;
 
 	for (i = 0; i < n; i++)
 	{
@@ -50,20 +50,20 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 		gammaInner = rCentre - rIn - r[i];
 
 		// Normale et vitesse normale
-		norm[0] = x[i] / rCentre;
-		norm[1] = y[i] / rCentre;
-		vn = vx[i] * norm[0] + vy[i] * norm[1];
+		nx = x[i] / rCentre;
+		ny = y[i] / rCentre;
+		vn = vx[i] * nx + vy[i] * ny;
 
 		// Increments/changements de vitesse
 		deltavOuter = fmax(0, vn + dvBoundary[i] - (gammaOuter / dt));
 		deltavInner = fmax(0, -vn - dvBoundary[i] - (gammaInner / dt));
 		deltav = deltavOuter - deltavInner - dvBoundary[i];
-		vx[i] -= deltav * norm[0];
-		vy[i] -= deltav * norm[1];
+		vx[i] -= deltav * nx;
+		vy[i] -= deltav * ny;
 
 		// Autres parametres
 		dvBoundary[i] += deltav;
-		zeta = fmax(zeta, abs(deltav));
+		zeta = fmax(zeta, fabs(deltav));
 
 		for (j = i + 1; j < n; j++)
 		{
@@ -76,30 +76,30 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			gamma = rCentre - r[i] - r[j];
 
 			// Normale et vitesse normale
-			norm[0] = deltax / rCentre;
-			norm[1] = deltay / rCentre;
-			vn = (vx[i] - vx[j]) * norm[0] + (vy[i] - vy[j]) * norm[1];
+			nx = deltax / rCentre;
+			ny = deltay / rCentre;
+			vn = (vx[i] - vx[j]) * nx + (vy[i] - vy[j]) * ny;
 
 			// Increment de vitesse
 			deltav = fmax(0.0, (vn + dvContacts[k] - gamma / dt)) - dvContacts[k];
 
 			// Calcul des masses reduites
-			miSum = m[i] / (m[i] + m[j]);
-			mjSum = m[j] / (m[i] + m[j]);
+			mSum = m[i] + m[j];
+			miSum = m[i] / mSum;
+			mjSum = m[j] / mSum;
 
 			// Calcul des changements de vitesse
-			vx[i] -= deltav * norm[0] * mjSum;
-			vx[j] += deltav * norm[0] * miSum;
-			vy[i] -= deltav * norm[1] * mjSum;
-			vy[j] += deltav * norm[1] * miSum;
+			vx[i] -= deltav * nx * mjSum;
+			vx[j] += deltav * nx * miSum;
+			vy[i] -= deltav * ny * mjSum;
+			vy[j] += deltav * ny * miSum;
 
 			// Paramètres supplementaires
 			dvContacts[k++] += deltav;
 			zeta = fmax(zeta, fabs(deltav));
 		}
 	}
-	free(norm);
-    return zeta;
+	return zeta;
 }
 
 #endif
@@ -107,26 +107,26 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 
 void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
 {
-    int n = myGrains->n;
-    int i,iter = 0;
-    double zeta;
-    double *x          = myGrains->x;
-    double *y          = myGrains->y;
-    double *m          = myGrains->m;
-    double *vy         = myGrains->vy;
-    double *vx         = myGrains->vx;
-    double gamma       = myGrains->gamma;
-    double gx          = myGrains->gravity[0];
-    double gy          = myGrains->gravity[1];
+	int n = myGrains->n;
+	int i,iter = 0;
+	double zeta;
+	double *x          = myGrains->x;
+	double *y          = myGrains->y;
+	double *m          = myGrains->m;
+	double *vy         = myGrains->vy;
+	double *vx         = myGrains->vx;
+	double gamma       = myGrains->gamma;
+	double gx          = myGrains->gravity[0];
+	double gy          = myGrains->gravity[1];
 
 
-//
-// -1- Calcul des nouvelles vitesses des grains sur base de la gravit� et de la trainee
-//
+	//
+	// -1- Calcul des nouvelles vitesses des grains sur base de la gravite et de la trainee
+	//
 
-//
-//  A FAIRE.... :-)    La loi du grand Newton : so easy !
-//
+	//
+	//  A FAIRE.... :-)    La loi du grand Newton : so easy !
+	//
 
 	for (i = 0; i < n; i++)
 	{
@@ -134,24 +134,24 @@ void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
 		vy[i] += (gy - (gamma * vy[i] / m[i])) * dt;
 	}
 
-//
-// -2- Correction des vitesses pour tenir compte des contacts
-//
-    do
+	//
+	// -2- Correction des vitesses pour tenir compte des contacts
+	//
+	do
 	{
-        zeta = femGrainsContactIterate(myGrains,dt,iter);
-        iter++;
+		zeta = femGrainsContactIterate(myGrains,dt,iter);
+		iter++;
 	}
-    while ((zeta > tol/dt && iter < iterMax) || iter == 1);
-    printf("iterations = %4d : error = %14.7e \n",iter-1,zeta);
+	while ((zeta > tol/dt && iter < iterMax) || iter == 1);
+	printf("iterations = %4d : error = %14.7e \n",iter-1,zeta);
 
-//
-// -3- Calcul des nouvelles positions sans penetrations de points entre eux
-//
-    for (i = 0; i < n; ++i)
+	//
+	// -3- Calcul des nouvelles positions sans penetrations de points entre eux
+	//
+	for (i = 0; i < n; ++i)
 	{
-        x[i] += vx[i] * dt;
-        y[i] += vy[i] * dt;
+		x[i] += vx[i] * dt;
+		y[i] += vy[i] * dt;
 	}
 }
 
