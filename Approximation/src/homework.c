@@ -8,16 +8,21 @@
 
 void femApproxPhi(double xsi, double eta, double *phi)
 {
-    phi[0] = (1.0 - xsi - eta) * (1.0/3.0 - xsi - eta) * (2.0/3.0 - xsi - eta) *  9.0/2.0;
-    phi[1] = 0.0;
-    phi[2] = 0.0;
-    phi[3] = 0.0;
-    phi[4] = 0.0;
-    phi[5] = 0.0;
-    phi[6] = 0.0;
-    phi[7] = 0.0;
-    phi[8] = 0.0;
-    phi[9] = 0.0;
+	double ratio1 = 9.0 / 2.0;
+	double ratio2 = 3 * ratio1;
+	double third = 1.0 / 3.0;
+	double tthird = 2.0 * third;
+
+    phi[0] = (1.0 - xsi - eta) * (third - xsi - eta) * (tthird - xsi - eta) *  ratio1;
+    phi[1] = xsi * (xsi - third) * (xsi - tthird) * ratio1;
+    phi[2] = eta * (eta - third) * (eta - tthird) * ratio1;
+    phi[3] = (1.0 - xsi - eta) * (tthird - xsi - eta) * xsi * ratio2;
+    phi[4] = (1.0 - xsi - eta) * (xsi - third) * xsi * ratio2;
+    phi[5] = (xsi - third) * xsi * eta * ratio2;
+    phi[6] = (eta - third) * xsi * eta * ratio2;
+    phi[7] = (1.0 - xsi - eta) * (eta - third) * eta * ratio2;
+    phi[8] = (1.0 - xsi - eta) * (tthird - xsi - eta) * eta * ratio2;
+    phi[9] = (1.0 - xsi - eta) * xsi * eta * 27.0;
 
     // La premiere fonction vous est donnee gracieusement....
     // Il vous reste les 9 autres a obtenir !
@@ -30,11 +35,29 @@ void femApproxPhi(double xsi, double eta, double *phi)
 
 void femApproxDphi(double xsi, double eta, double *dphidxsi, double *dphideta)
 {
-    int i;
-    for (i=0;i < 10; i++) {
-      dphidxsi[i] = 0;
-      dphideta[i] = 0;  }
+	double eta2 = pow(eta,2);
+	double xsi2 = pow(xsi,2);
 
+    dphidxsi[0] = 0.5 * (-27.0 * eta2 + eta * (36.0 - 54.0 * xsi) - 27.0 * xsi2 + 36.0 * xsi - 11.0);
+	dphideta[0] = 0.5 * (-27.0 * eta2 + eta * (36.0 - 54.0 * xsi) - 27.0 * xsi2 + 36.0 * xsi - 11.0);
+	dphidxsi[1] = 13.5 * xsi2 - 9.0 * xsi + 1.0;
+	dphideta[1] = 0.0;
+	dphidxsi[2] = 0.0;
+	dphideta[2] = 13.5 * eta2 - 9.0 * eta + 1.0;
+	dphidxsi[3] = 4.5 * (3.0 * eta2 + eta * (12.0 * xsi - 5.0) + 9.0 * xsi2 - 10.0 * xsi + 2.0);
+	dphideta[3] = 4.5 * xsi * (6.0 * eta + 6.0 * xsi - 5.0);
+	dphidxsi[4] = -4.5 * (eta * (6.0 * xsi - 1.0) + 9.0 * xsi2 - 8.0 * xsi + 1.0);
+	dphideta[4] = -4.5 * xsi * (3.0 * xsi - 1.0);
+	dphidxsi[5] = 4.5 * eta * (6.0 * xsi - 1.0);
+	dphideta[5] = 13.5 * (xsi - 1.0 / 3.0) * xsi;
+	dphidxsi[6] = 13.5 * (eta - 1.0 / 3.0) * eta;
+	dphideta[6] = 4.5 * (6.0 * eta - 1.0) * xsi;
+	dphidxsi[7] = -4.5 * eta * (3.0 * eta - 1.0);
+	dphideta[7] = -4.5 * (9.0 * eta2 + eta * (6.0 * xsi - 8.0) - xsi + 1.0);
+	dphidxsi[8] = 4.5 * eta * (6.0 * eta + 6.0 * xsi - 5.0);
+	dphideta[8] = 4.5 * (9.0 * eta2 + 2.0 * eta * (6.0 * xsi - 5.0) + 3.0 * xsi2 - 5.0 * xsi + 2.0);
+	dphidxsi[9] = -27.0 * eta * (eta + 2.0 * xsi - 1.0);
+	dphideta[9] = -27.0 * xsi * (2.0 * eta + xsi - 1.0);
 
     // A faire a titre de bonus, car on n'a pas vraiment besoin de ces derivees...
     // Il n'a qu'un unique point a gagner avec ceci
