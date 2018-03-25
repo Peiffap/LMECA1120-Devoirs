@@ -117,7 +117,7 @@ void femApproxSolve(femApproxProblem *theProblem)
             for (i = 0; i < theSpace->n; i++) {
                 theSystem->A[map[i]][map[i]] = 1.0; }
             for (i = 0; i < theSpace->n; i++) {
-                theSystem->B[map[i]] = 0.0; }}}
+                theSystem->B[map[i]] = femApproxStommel(theRule->xsi[iInteg], theRule->eta[iInteg]); }}}
 
     femFullSystemEliminate(theSystem);
 }
