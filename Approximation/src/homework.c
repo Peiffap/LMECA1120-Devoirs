@@ -8,20 +8,18 @@
 
 void femApproxPhi(double xsi, double eta, double *phi)
 {
-	double ratio1 = 9.0 / 2.0;
-	double ratio2 = 3 * ratio1;
 	double third = 1.0 / 3.0;
 	double tthird = 2.0 * third;
 
-    phi[0] = (1.0 - xsi - eta) * (third - xsi - eta) * (tthird - xsi - eta) *  ratio1;
-    phi[1] = xsi * (xsi - third) * (xsi - tthird) * ratio1;
-    phi[2] = eta * (eta - third) * (eta - tthird) * ratio1;
-    phi[3] = (1.0 - xsi - eta) * (tthird - xsi - eta) * xsi * ratio2;
-    phi[4] = (1.0 - xsi - eta) * (xsi - third) * xsi * ratio2;
-    phi[5] = (xsi - third) * xsi * eta * ratio2;
-    phi[6] = (eta - third) * xsi * eta * ratio2;
-    phi[7] = (1.0 - xsi - eta) * (eta - third) * eta * ratio2;
-    phi[8] = (1.0 - xsi - eta) * (tthird - xsi - eta) * eta * ratio2;
+    phi[0] = (1.0 - xsi - eta) * (third - xsi - eta) * (tthird - xsi - eta) *  4.5;
+    phi[1] = xsi * (xsi - third) * (xsi - tthird) * 4.5;
+    phi[2] = eta * (eta - third) * (eta - tthird) * 4.5;
+    phi[3] = (1.0 - xsi - eta) * (tthird - xsi - eta) * xsi * 13.5;
+    phi[4] = (1.0 - xsi - eta) * (xsi - third) * xsi * 13.5;
+    phi[5] = (xsi - third) * xsi * eta * 13.5;
+    phi[6] = (eta - third) * xsi * eta * 13.5;
+    phi[7] = (1.0 - xsi - eta) * (eta - third) * eta * 13.5;
+    phi[8] = (1.0 - xsi - eta) * (tthird - xsi - eta) * eta * 13.5;
     phi[9] = (1.0 - xsi - eta) * xsi * eta * 27.0;
 
     // La premiere fonction vous est donnee gracieusement....
