@@ -82,7 +82,7 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
         map[j] = mapElem[iElem][j]; }
 
     // A generaliser pour un maillage quelconque avec une interpolation P3-C0
-    // Avec la version actuelle, le code ne fonctionne qu'avec les maillages one.txt et two.text
+    // Avec la version actuelle, le code ne fonctionne qu'avec les maillages one.txt et two.txt
     //
 
 
@@ -114,7 +114,7 @@ void femApproxSolve(femApproxProblem *theProblem)
      // A completer et a modifier ce qui suit
      // pour obtenir l'approximation de la fonction de Stommel !
      // Ici on construit une matrice diagonale et
-     // et un menbre de droite nulle : la solution sera donc nulle :-)
+     // et un membre de droite nuls : la solution sera donc nulle :-)
 
             for (i = 0; i < theSpace->n; i++) {
                 theSystem->A[map[i]][map[i]] = 1.0; }
