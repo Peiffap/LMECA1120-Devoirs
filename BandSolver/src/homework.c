@@ -1,6 +1,5 @@
-
 #include"fem.h"
-#include"limits.h"
+#include <limits.h>
 
 femMesh *MeshWithGlobalAccess;
 
@@ -34,8 +33,7 @@ void femDiffusionRenumber(femDiffusionProblem *theProblem, femRenumType renumTyp
 {
 	int i;
 	int *tab;
-    switch (renumType)
-	{
+    switch (renumType) {
         case FEM_NO :
             for (i = 0; i < theProblem->mesh->nNode; i++)
                 theProblem->number[i] = i;
@@ -104,8 +102,7 @@ void femDiffusionRenumber(femDiffusionProblem *theProblem, femRenumType renumTyp
 // end
 //
 
-        default : Error("Unexpected renumbering option");
-	}
+        default : Error("Unexpected renumbering option"); }
 }
 
 
@@ -134,35 +131,81 @@ int femDiffusionComputeBand(femDiffusionProblem *theProblem)
 		myBand = (int)fmax(myBand, (max - min));
 		//printf("\tband : %d\n", myBand);
 	}
-    return(myBand + 1);
+    return(myBand+1);
 }
 
-void femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc) //a modifier
+void femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc) //eu besoin de l'aide du drive car no idea of what we were supposed to do
 {
     int i,j;
-    for (i = 0; i < nLoc; i++)
+	int myRow;
+	if (mySolver->iter == 0)
 	{
-        int myRow = map[i];
-        for(j = 0; j < nLoc; j++)
-		{
-            mySolver->R[myRow] -= Aloc[i*nLoc+j]*Uloc[j];
+		for (i = 0; i < nLoc; i++) {
+			myRow = map[i];
+			mySolver->R[myRow] -= Bloc[i];
+			for (j = 0; j < nLoc; j++) {
+				mySolver->R[myRow] += Aloc[i*nLoc + j] * Uloc[j];
+			}
 		}
-        mySolver->R[myRow] += Bloc[i];
 	}
+	///*
+	for (i = 0; i < nLoc; i++) {
+		myRow = map[i];
+		for (j = 0; j < nLoc; j++) {
+			int myCol = map[j];
+			mySolver->S[myRow] += Aloc[i*nLoc + j] * mySolver->D[myCol];
+		}
+	}
+	//*/
 }
 
-void femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue) // a modifier ??
+void femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue)
 {
-    mySolver->R[myNode] = myValue;
+	mySolver->R[myNode] = 0.0;//myValue; car pas d'autres possibilites ?
+	//mySolver->D[myNode] = 0.0;
+	mySolver->S[myNode] = 0.0;
+	//mySolver->X[myNode] = 0.0;
 }
 
-double *femIterativeSolverEliminate(femIterativeSolver *mySolver) //a modifier
+double *femIterativeSolverEliminate(femIterativeSolver *mySolver)
 {
+	double alpha, beta;
     mySolver->iter++;
     double error = 0.0; int i;
-    for (i=0; i < mySolver->size; i++) {
-        error += (mySolver->R[i])*(mySolver->R[i]);
-        mySolver->R[i] = mySolver->R[i]/5;  }
+	for (i = 0; i < mySolver->size; i++)
+	{
+		error += mySolver->R[i] * mySolver->R[i];
+	}
+	if (mySolver->iter == 1)
+	{
+		for (i = 0; i < mySolver->size; i++)
+		{
+			mySolver->X[i] = 0;
+			mySolver->D[i] = mySolver->R[i];
+		}
+	}
+	else
+	{
+		alpha = 0.0;
+		beta = 0.0;
+		for (i = 0; i < mySolver->size; i++)
+		{
+			alpha += (mySolver->S[i] * mySolver->R[i]);
+		}
+		alpha = -error / alpha;
+		for (i = 0; i < mySolver->size; i++)
+		{
+			mySolver->R[i] += alpha * mySolver->S[i];
+			beta += mySolver->R[i] * mySolver->R[i];
+		}
+		beta = beta / error;
+		for (i = 0; i < mySolver->size; i++)
+		{
+			mySolver->X[i] = alpha * mySolver->D[i];
+			mySolver->D[i] = mySolver->R[i] + beta * mySolver->D[i];
+			mySolver->S[i] = 0.0;
+		}
+	}
     mySolver->error = sqrt(error);
-    return(mySolver->R);
+    return(mySolver->X);
 }
