@@ -1,7 +1,7 @@
 
 #include "fem.h"
 
-
+// Fait en collaboration avec Benjamin Goffauxm, Romain Rezsohazy, Christopher Moens et Marie Hartman.
 
 
 # ifndef NOAPPROXPHI
@@ -66,19 +66,22 @@ void femApproxDphi(double xsi, double eta, double *dphidxsi, double *dphideta)
 
 void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *map)
 {
-
 	femMesh *theMesh = theProblem->mesh;
 	femFullSystem *theSystem = theProblem->system;
 	femIntegration *theRule = theProblem->rule;
 	femDiscrete *theSpace = theProblem->space;
 	femEdges *theEdges = theProblem->edges;
 
-	map[0] = theProblem->mesh->elem[iElem*3];
-	map[1] = theProblem->mesh->elem[iElem*3+1];
-	map[2] = theProblem->mesh->elem[iElem*3+2];
+	map[0] = theProblem->mesh->elem[iElem * 3];
+	map[1] = theProblem->mesh->elem[iElem * 3 + 1];
+	map[2] = theProblem->mesh->elem[iElem * 3 + 2];
 
-	int node1, node2, node3, i; theProblem->mesh->elem[iElem*3];
-	int nbrsommet = sizeof(theMesh->X) - 1;
+	int node1, node2, node3, i;
+	int nbrsommet = 0;
+	for(i = 0; i < theMesh->nElem * 3; i++)
+	{
+		nbrsommet = fmax(nbrsommet, theMesh->elem[i]);
+	}
 	int nbrsegment = theEdges->nEdge;
 
 	node1 = map[0];
@@ -105,7 +108,7 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
 		}
 	}
 
-	for (i = 0; i< nbrsegment; i++)
+	for (i = 0; i < nbrsegment; i++)
 	{
 		if (theEdges->edges[i].node[0] == node2)
 		{
@@ -122,7 +125,6 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
 				map[6] = nbrsommet + 2 * i + 1;
 				map[5] = map[6] + 1;
 			}
-
 		}
 	}
 
@@ -130,7 +132,7 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
 	{
 		if (theEdges->edges[i].node[0] == node3)
 		{
-			if ( theEdges->edges[i].node[1] == node1)
+			if (theEdges->edges[i].node[1] == node1)
 			{
 				map[7] = nbrsommet + 2 * i + 1;
 				map[8] = map[7] + 1;
@@ -140,7 +142,7 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
 		{
 			if (theEdges->edges[i].node[1] == node3)
 			{
-				map[8] = nbrsommet + 2*  i + 1;
+				map[8] = nbrsommet + 2 * i + 1;
 				map[7] = map[8] + 1;
 			}
 
@@ -183,9 +185,10 @@ void femApproxSolve(femApproxProblem *theProblem)
 	femFullSystem *theSystem = theProblem->system;
 	femIntegration *theRule = theProblem->rule;
 	femDiscrete *theSpace = theProblem->space;
+	femEdges *theEdges = theProblem->edges;
 
 
-	double x[3],y[3],phi[10];
+	double x[3],y[3],phi[10];  // phi 1 = 1-xsi-eta, phi 2 = xsi, phi 3 = eta
 	int iElem,iInteg,i,j,map[10];
 
 
@@ -200,17 +203,23 @@ void femApproxSolve(femApproxProblem *theProblem)
 			for (iInteg = 0; iInteg < theRule->n; iInteg++){
 				femApproxPhi(theRule->xsi[iInteg], theRule->eta[iInteg], phi);
 
-				for (i = 0; i < theSpace->n; i++){
-					for (j = 0; j < theSpace->n; j++){
+				for (i = 0; i < theSpace->n; i++) {
+					for (j = 0; j < theSpace->n; j++) {
 						theSystem->A[map[i]][map[j]] += jac * theRule->weight[iInteg] * phi[i] * phi[j];
 					}
-					// double u = ;
-					theSystem->B[map[i]] = 1; // += jac*theRule->weight[iInteg]*u*phi[i];
+				}
+				double xloc = theMesh->X[theMesh->elem[iElem*3]]*(1-theRule->xsi[iInteg]-theRule->eta[iInteg]) + theMesh->X[theMesh->elem[iElem*3+1]]*(theRule->xsi[iInteg]) + theMesh->X[theMesh->elem[iElem*3+2]]*(theRule->eta[iInteg]);
+				double yloc = theMesh->Y[theMesh->elem[iElem*3]] * (1-theRule->xsi[iInteg]-theRule->eta[iInteg]) + theMesh->Y[theMesh->elem[iElem*3+1]] * (theRule->xsi[iInteg]) + theMesh->Y[theMesh->elem[iElem*3+2]] * (theRule->eta[iInteg]);
+				double u = femApproxStommel(xloc, yloc);
+				for (i = 0; i < theSpace->n; i++)
+				{
+					theSystem->B[map[i]] += theRule->weight[iInteg] * u * phi[i] * jac;
 				}
 			}
 		}
 
 		femFullSystemEliminate(theSystem);
 	}
+
 
 	# endif

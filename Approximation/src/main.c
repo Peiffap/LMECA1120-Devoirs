@@ -25,7 +25,7 @@ int main(void)
     // Sorry for the inconvenience :-)
     // On reflechit pour rendre cela plus transparent dans les homeworks suivants :-)
     // Be patient !
-    
+
 
     printf("Number of elements    : %4d\n", theProblem->mesh->nElem);
     printf("Number of local nodes : %4d\n", theProblem->mesh->nLocalNode);
