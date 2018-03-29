@@ -85,69 +85,69 @@ void femApproxLocal(const femApproxProblem *theProblem, const int iElem, int *ma
 	node2 = map[1];
 	node3 = map[2];
 
-	for ( i = 0; i < nbrsegment; i++)
+	for (i = 0; i < nbrsegment; i++)
 	{
-		if ( theEdges->edges[i].node[0] == node1)
+		if (theEdges->edges[i].node[0] == node1)
 		{
-			if ( theEdges->edges[i].node[1] == node2)
+			if (theEdges->edges[i].node[1] == node2)
 			{
-				map[3] = nbrsommet + 2*i + 1;
+				map[3] = nbrsommet + 2 * i + 1;
 				map[4] = map[3] + 1;
 			}
 		}
-		else if ( theEdges->edges[i].node[0] == node2)
+		else if (theEdges->edges[i].node[0] == node2)
 		{
-			if ( theEdges->edges[i].node[1] == node1)
+			if (theEdges->edges[i].node[1] == node1)
 			{
-				map[4] = nbrsommet + 2*i + 1;
+				map[4] = nbrsommet + 2 * i + 1;
 				map[3] = map[4] + 1;
 			}
 		}
 	}
 
-	for ( i = 0; i< nbrsegment; i++)
+	for (i = 0; i< nbrsegment; i++)
 	{
-		if ( theEdges->edges[i].node[0] == node2)
+		if (theEdges->edges[i].node[0] == node2)
 		{
-			if ( theEdges->edges[i].node[1] == node3)
+			if (theEdges->edges[i].node[1] == node3)
 			{
-				map[5] = nbrsommet + 2*i + 1;
+				map[5] = nbrsommet + 2 * i + 1;
 				map[6] = map[5] + 1;
 			}
 		}
-		else if ( theEdges->edges[i].node[0] == node3)
+		else if (theEdges->edges[i].node[0] == node3)
 		{
-			if ( theEdges->edges[i].node[1] == node2)
+			if (theEdges->edges[i].node[1] == node2)
 			{
-				map[6] = nbrsommet + 2*i + 1;
+				map[6] = nbrsommet + 2 * i + 1;
 				map[5] = map[6] + 1;
 			}
 
 		}
 	}
 
-	for ( i = 0; i< nbrsegment; i++)
+	for (i = 0; i < nbrsegment; i++)
 	{
-		if ( theEdges->edges[i].node[0] == node3)
+		if (theEdges->edges[i].node[0] == node3)
 		{
 			if ( theEdges->edges[i].node[1] == node1)
 			{
-				map[7] = nbrsommet + 2*i + 1;
+				map[7] = nbrsommet + 2 * i + 1;
 				map[8] = map[7] + 1;
 			}
 		}
-		else if ( theEdges->edges[i].node[0] == node1)
+		else if (theEdges->edges[i].node[0] == node1)
 		{
-			if ( theEdges->edges[i].node[1] == node3)
+			if (theEdges->edges[i].node[1] == node3)
 			{
-				map[8] = nbrsommet + 2*i + 1;
+				map[8] = nbrsommet + 2*  i + 1;
 				map[7] = map[8] + 1;
 			}
 
 		}
 	}
 
-	map[9] = nbrsommet + 2*(nbrsegment) + iElem + 1;
+	map[9] = nbrsommet + 2 * nbrsegment + iElem + 1;
 
 
 
@@ -200,18 +200,17 @@ void femApproxSolve(femApproxProblem *theProblem)
 			for (iInteg = 0; iInteg < theRule->n; iInteg++){
 				femApproxPhi(theRule->xsi[iInteg], theRule->eta[iInteg], phi);
 
-				for ( i = 0; i < theSpace->n; i++){
-					for ( j = 0; j < theSpace->n; j++){
-						theSystem->A[map[i]][map[j]] += jac*theRule->weight[iInteg]*phi[i]*phi[j];
+				for (i = 0; i < theSpace->n; i++){
+					for (j = 0; j < theSpace->n; j++){
+						theSystem->A[map[i]][map[j]] += jac * theRule->weight[iInteg] * phi[i] * phi[j];
 					}
 					// double u = ;
-					theSystem->B[map[i]] = 1;// += jac*theRule->weight[iInteg]*u*phi[i];
+					theSystem->B[map[i]] = 1; // += jac*theRule->weight[iInteg]*u*phi[i];
 				}
 			}
 		}
 
 		femFullSystemEliminate(theSystem);
 	}
-
 
 	# endif
