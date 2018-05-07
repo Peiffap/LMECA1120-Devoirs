@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-#define FALSE 0 
+#define FALSE 0
 #define TRUE  1
 
 typedef struct {
@@ -43,15 +43,15 @@ typedef struct {
     double *dvContacts;
 } femGrains;
 
-typedef struct 
+typedef struct
 {
     double *R;
     double *D;
     double *S;
-    double *X; 
-    double error;      
+    double *X;
+    double error;
     int size;
-    int iter;        
+    int iter;
 } femIterativeSolver;
 
 typedef struct {
@@ -64,5 +64,3 @@ typedef struct {
     int *number;
     double *soluce;
 } femDiffusionProblem;
-
-
