@@ -1,0 +1,4 @@
+﻿  fem.c
+D:\UCL\LMECA1120\projet\src\fem.c(318): warning C4244: 'initialisation' : conversion de 'double' en 'int', perte possible de données
+D:\UCL\LMECA1120\projet\src\fem.c(319): warning C4244: 'initialisation' : conversion de 'double' en 'int', perte possible de données
+  myFem.vcxproj -> D:\UCL\LMECA1120\projet\build\Debug\myFem.exe
