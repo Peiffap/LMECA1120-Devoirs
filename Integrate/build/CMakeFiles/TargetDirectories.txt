@@ -1,9 +1,0 @@
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/CMakeFiles/rebuild_cache.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/CMakeFiles/edit_cache.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/CMakeFiles/myFem.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/CMakeFiles/run.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/glfw-3.2.1/CMakeFiles/rebuild_cache.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/glfw-3.2.1/CMakeFiles/edit_cache.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/glfw-3.2.1/src/CMakeFiles/rebuild_cache.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/glfw-3.2.1/src/CMakeFiles/glfw.dir
-/home/admino/Documents/LMECA1120-Devoirs/Integrate/build/glfw-3.2.1/src/CMakeFiles/edit_cache.dir
