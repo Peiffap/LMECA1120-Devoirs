@@ -94,7 +94,7 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 			vy[i] -= deltav * ny * mjSum;
 			vy[j] += deltav * ny * miSum;
 
-			// Param�tres supplementaires
+			// Parametres supplementaires
 			dvContacts[k++] += deltav;
 			zeta = fmax(zeta, fabs(deltav));
 		}
