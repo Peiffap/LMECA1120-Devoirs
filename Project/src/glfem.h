@@ -28,7 +28,10 @@ void        glfemDrawDisk(double x, double y, double r);
 
 
 void        glfemReshapeWindows(double r, int width, int heigh);
-
+void 		glfemPlotField(femMesh *theMesh, double *u);
+void 		glfemPlotMesh(femMesh *theMesh);
+void 		glfemPlotEdges(femEdges *theEdges);
+void 		glfemPlotBnd(femEdges *theEdges);
 
 
 void        glfemMessage(char *message);

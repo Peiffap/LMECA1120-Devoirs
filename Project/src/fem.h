@@ -19,7 +19,7 @@
 #define ErrorScan(a)   femErrorScan(a,__LINE__,__FILE__)
 #define Error(a)       femError(a,__LINE__,__FILE__)
 #define Warning(a)     femWarning(a,  __LINE__, __FILE__)
-#define FALSE 0 
+#define FALSE 0
 #define TRUE  1
 
 //GRAINS
@@ -42,6 +42,8 @@ typedef struct {
 
 //MESH AND SOLVER
 
+typedef enum {FEM_TRIANGLE,FEM_QUAD} femElementType;
+typedef enum {FEM_FULL,FEM_BAND,FEM_ITER} femSolverType;
 typedef enum { FEM_NO, FEM_XNUM, FEM_YNUM } femRenumType;
 
 typedef struct {
@@ -106,7 +108,7 @@ femGrains  *femGrainsCreateSimple(int n, double r, double m, double radiusIn, do
 femGrains  *femGrainsCreateTiny(double radiusIn, double radiusOut);
 void        femGrainsFree(femGrains *myGrains);
 void        femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax);
-double      femGrainsContactIterate(femGrains *myGrains, double dt, int iter); 
+double      femGrainsContactIterate(femGrains *myGrains, double dt, int iter);
 
 double      femMin(double *x, int n);
 double      femMax(double *x, int n);
@@ -114,7 +116,7 @@ void        femError(char *text, int line, char *file);
 void        femErrorScan(int test, int line, char *file);
 void        femWarning(char *text, int line, char *file);
 
-femIntegration      *femIntegrationCreate(int n);
+femIntegration      *femIntegrationCreate(int n, femElementType type);
 void                 femIntegrationFree(femIntegration *theRule);
 
 femMesh             *femMeshRead(const char *filename);
@@ -126,7 +128,7 @@ void                 femEdgesFree(femEdges *theEdges);
 void                 femEdgesPrint(femEdges *theEdges);
 int                  femEdgesCompare(const void *edgeOne, const void *edgeTwo);
 
-femDiscrete*         femDiscreteCreate(int n);
+femDiscrete*         femDiscreteCreate(int n, femElementType type);
 void                 femDiscreteFree(femDiscrete* mySpace);
 void                 femDiscretePrint(femDiscrete* mySpace);
 void                 femDiscreteXsi2(femDiscrete* mySpace, double *xsi, double *eta);
@@ -141,7 +143,7 @@ void                 femIterativeSolverPrintInfos(femIterativeSolver* mySolver);
 double*              femIterativeSolverEliminate(femIterativeSolver* mySolver);
 void                 femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue);
 void                 femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc);
-double               femIterativeSolverGet(femIterativeSolver* mySolver, int i, int j); //pas trouvé
+double               femIterativeSolverGet(femIterativeSolver* mySolver, int i, int j); //pas trouvï¿½
 int                  femIterativeSolverConverged(femIterativeSolver *mySolver);
 
 femDiffusionProblem *femDiffusionCreate(const char *filename, femRenumType renumType);
@@ -156,5 +158,43 @@ double               femMax(double *x, int n);
 void                 femError(char *text, int line, char *file);
 void                 femErrorScan(int test, int line, char *file);
 void                 femWarning(char *text, int line, char *file);
+
+typedef struct {
+    double *B;
+    double **A;
+    int size;
+} femFullSystem;
+
+typedef struct {
+    femMesh *mesh;
+    femEdges *edges;
+    femDiscrete *space;
+    femIntegration *rule;
+    femFullSystem *system;
+} femPoissonProblem;
+
+void                 femMeshClean(femMesh *theMesh);
+void                 femMeshLocal(const femMesh *theMesh, const int i, int *map, double *x, double *y);
+
+int                  femEdgesCompare(const void *edgeOne, const void *edgeTwo);
+
+femFullSystem*       femFullSystemCreate(int size);
+void                 femFullSystemFree(femFullSystem* mySystem);
+void                 femFullSystemPrint(femFullSystem* mySystem);
+void                 femFullSystemInit(femFullSystem* mySystem);
+void                 femFullSystemAlloc(femFullSystem* mySystem, int size);
+double*              femFullSystemEliminate(femFullSystem* mySystem);
+void                 femFullSystemConstrain(femFullSystem* mySystem, int myNode, double value);
+
+femPoissonProblem   *femPoissonCreate(const char *filename);
+void                 femPoissonFree(femPoissonProblem *theProblem);
+void                 femPoissonSolve(femPoissonProblem *theProblem);
+
+double               femMin(double *x, int n);
+double               femMax(double *x, int n);
+void                 femError(char *text, int line, char *file);
+void                 femErrorScan(int test, int line, char *file);
+void                 femWarning(char *text, int line, char *file);
+
 
 #endif

@@ -21,7 +21,7 @@ static int gRasterH = 800;
 static int gRasterV = 600;
 static int numberColors = 50;
 
-GLubyte space[] = 
+GLubyte space[] =
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 GLubyte letters[][13] = {
@@ -108,7 +108,7 @@ GLubyte specialletters[][13] = {
     {0x00, 0x00, 0x24, 0x24, 0x7e, 0x7e, 0x24, 0x7e, 0x7e, 0x24, 0x24, 0x00, 0x00}, // #
     {0x00, 0x00, 0x18, 0x3c, 0x5a, 0x5a, 0x1a, 0x3c, 0x58, 0x58, 0x5a, 0x3c, 0x18}, // $
     {0x00, 0x00, 0x44, 0x4a, 0x6a, 0x24, 0x30, 0x18, 0x0c, 0x24, 0x56, 0x52, 0x22}, // %
-    
+
     {0x00, 0x00, 0x79, 0xcf, 0xc6, 0xcf, 0x79, 0x70, 0x78, 0xcc, 0xcc, 0xcc, 0x78}, // &
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x18, 0x00, 0x00}, // '
     {0x00, 0x00, 0x0c, 0x18, 0x18, 0x30, 0x30, 0x30, 0x30, 0x30, 0x18, 0x18, 0x0c}, // (
@@ -126,25 +126,25 @@ GLuint fontOffset;
 void glMakeRasterFont(void)
 {
     GLuint i, j;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);  
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glShadeModel (GL_FLAT);
     fontOffset = glGenLists (128);
-    
+
     for (i = 0,j = 'A'; i < 26; i++,j++) {
         glNewList(fontOffset + j, GL_COMPILE);
         glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, letters[i]);
         glEndList(); }
-    
+
     for (i = 0,j = 'a'; i < 26; i++,j++) {
         glNewList(fontOffset + j, GL_COMPILE);
         glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, lowletters[i]);
         glEndList(); }
-    
+
     for (i = 0,j = '0'; i < 16; i++,j++) {
         glNewList(fontOffset + j, GL_COMPILE);
         glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, numletters[i]);
         glEndList(); }
-    
+
     for (i = 0,j = ' '; i < 16; i++,j++) {
         glNewList(fontOffset + j, GL_COMPILE);
         glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, specialletters[i]);
@@ -163,9 +163,9 @@ void glfemDrawMessage(int h, int v, char *s)
     // Les coordonnées négatives sont normalement admises :-)
     // On conserve le string entier même si le début est off-screen
 
-    int off;    
-    glPushAttrib(GL_ALL_ATTRIB_BITS);   
-    glDisable(GL_TEXTURE_2D);   
+    int off;
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glDisable(GL_TEXTURE_2D);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -173,21 +173,21 @@ void glfemDrawMessage(int h, int v, char *s)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    
+
     if (h < 0)   h = gRasterH + h - strlen(s)*10;
-    if (v < 0)   v = gRasterV + v; 
-    glRasterPos2i(h, v);    
+    if (v < 0)   v = gRasterV + v;
+    glRasterPos2i(h, v);
     glListBase(fontOffset);
-    
+
     if (h >= 0) {
       glRasterPos2i(h, v);
       glCallLists((GLsizei) strlen(s), GL_UNSIGNED_BYTE, (GLubyte *) s); }
-    else { 
+    else {
       off = (h-9)/10;
       glRasterPos2i(h - off*10, v);
       if (strlen(s)+off > 0) glCallLists((GLsizei) strlen(s)+off, GL_UNSIGNED_BYTE, (GLubyte *) &s[-off]); }
-    
-    glPopMatrix(); 
+
+    glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -201,10 +201,10 @@ void glColor(double value, int numberOfColors, float* r, float* g, float* b)
     value = value * (numberOfColors);
     value = (int)(value - 0.00000001);
     value = value / (numberOfColors - 1);
-    
+
     value = 1 - value;
     if (value < 0) value=0;
-    if (value > 1) value=1; 
+    if (value > 1) value=1;
     *r = 3.5*(1-value)*(1-value);
     *g = (1-value)*(value)*3.5;
     *b = value*value;
@@ -217,19 +217,19 @@ double glScale(double minimum, double maximum, double value)
     return (value - minimum) / fabs(maximum - minimum);
 }
 
-void glfemDrawNodes(double* x, double* y,int n,double r) 
+void glfemDrawNodes(double* x, double* y,int n,double r)
 {
     int i;
     glEnable(GL_POINT_SMOOTH);
     glPointSize(10.);
     glBegin(GL_POINTS);
-    for (i = 0; i < n; i++) {      
+    for (i = 0; i < n; i++) {
         glVertex2f(x[i],y[i]); }
     glEnd();
 }
-    
-void glfemDrawColorElement(float *x, float *y, double *u, int n) 
-{   
+
+void glfemDrawColorElement(float *x, float *y, double *u, int n)
+{
     GLfloat r,g,b;
     int j;
     glBegin(GL_POLYGON);
@@ -263,18 +263,18 @@ void glfemDrawDisk(double x, double y, double r)
     glEnd();
 }
 
-void glfemDrawElement(float *x, float *y, int n)  
+void glfemDrawElement(float *x, float *y, int n)
 {
     int j;
-    glBegin(GL_LINE_STRIP);         
-    for (j = 0; j < n; j++) {      
+    glBegin(GL_LINE_STRIP);
+    for (j = 0; j < n; j++) {
         glVertex2f(x[j],y[j]); }
     glVertex2f(x[0],y[0]);
     glEnd();
 
 }
 
-    
+
 void glfemReshapeWindows(double r, int w, int h)
 {
     double minX = -r;
@@ -282,10 +282,10 @@ void glfemReshapeWindows(double r, int w, int h)
     double minY = -r;
     double maxY = r;
     double sizeX = (maxX-minX)/1.65;
-    double meanX = (maxX+minX)/2.0; 
+    double meanX = (maxX+minX)/2.0;
     double sizeY = (maxY-minY)/1.65;
     double meanY = (maxY+minY)/2.0;
-    
+
     double ratio = (GLfloat) h / (GLfloat) w;
     double size = fmax(sizeX,sizeY);
     double left,right,top,bottom;
@@ -293,38 +293,73 @@ void glfemReshapeWindows(double r, int w, int h)
         left = meanX - size;
         right = meanX + size;
         bottom = meanY - size*ratio;
-        top = meanY + size*ratio;  }   
+        top = meanY + size*ratio;  }
     else {
         left = meanX - size/ratio;
         right = meanX + size/ratio;
         bottom = meanY - size;
-        top = meanY + size;  }   
+        top = meanY + size;  }
 
-        
-    glViewport(0,0,w,h);    
+
+    glViewport(0,0,w,h);
     glClearColor( 0.9f, 0.9f, 0.8f, 0.0f );
  //   glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );  // for white plot
-    glClear(GL_COLOR_BUFFER_BIT);   
+    glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(left, right, bottom, top, -5.0, 5.0);
-    
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
 
+void glfemPlotField(femMesh *theMesh, double *u)
+{
+    int i,j,*nodes;
+    float  xLoc[4];
+    float  yLoc[4];
+    double uLoc[4];
+    double uMax = femMax(u,theMesh->nNode);
+    double uMin = femMin(u,theMesh->nNode);
+    int nLocalNode = theMesh->nLocalNode;
+
+    for (i = 0; i < theMesh->nElem; ++i) {
+        nodes = &(theMesh->elem[i*nLocalNode]);
+        for (j=0; j < nLocalNode; ++j) {
+            xLoc[j] = theMesh->X[nodes[j]];
+            yLoc[j] = theMesh->Y[nodes[j]];
+            uLoc[j] = glScale(uMin,uMax,u[nodes[j]]); }
+        glfemDrawColorElement(xLoc,yLoc,uLoc,nLocalNode); }
+    glColor3f(0.0, 0.0, 0.0);
+    glfemPlotMesh(theMesh);
+}
+
+void glfemPlotMesh(femMesh *theMesh)
+{
+    int i,j,*nodes;
+    float  xLoc[4];
+    float  yLoc[4];
+    int nLocalNode = theMesh->nLocalNode;
+
+    for (i = 0; i < theMesh->nElem; ++i) {
+        nodes = &(theMesh->elem[i*nLocalNode]);
+        for (j=0; j < nLocalNode; ++j) {
+            xLoc[j] = theMesh->X[nodes[j]];
+            yLoc[j] = theMesh->Y[nodes[j]]; }
+        glfemDrawElement(xLoc,yLoc,nLocalNode); }
+}
 
 void glfemMessage(char *message)
 {
-    glfemDrawMessage(20,460,message);   
+    glfemDrawMessage(20,460,message);
 }
 
 
 GLFWwindow* glfemInit(char *theWindowName)
 {
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(480,480,"Simple example with graphics",NULL,NULL);    
+    GLFWwindow* window = glfwCreateWindow(480,480,"Simple example with graphics",NULL,NULL);
     glfwMakeContextCurrent(window);
     glfemSetRasterSize(480,480);
     glfwSetWindowTitle(window,theWindowName);
@@ -332,4 +367,25 @@ GLFWwindow* glfemInit(char *theWindowName)
     glMakeRasterFont();
     return(window);
 }
+void glfemPlotEdges(femEdges *theEdges)
+{
+    int i;
+    femMesh* theMesh = theEdges->mesh;
+    glBegin(GL_LINES);
+    for (i = 0; i < theEdges->nEdge; i++) {
+        glVertex2d(theMesh->X[theEdges->edges[i].node[0]], theMesh->Y[theEdges->edges[i].node[0]]);
+        glVertex2d(theMesh->X[theEdges->edges[i].node[1]], theMesh->Y[theEdges->edges[i].node[1]]); }
+    glEnd();
+}
 
+void glfemPlotBnd(femEdges *theEdges)
+{
+    int i;
+    femMesh* theMesh = theEdges->mesh;
+    glBegin(GL_LINES);
+    for (i = 0; i < theEdges->nEdge; i++) {
+        if (theEdges->edges[i].elem[1] < 0) {
+            glVertex2d(theMesh->X[theEdges->edges[i].node[0]], theMesh->Y[theEdges->edges[i].node[0]]);
+            glVertex2d(theMesh->X[theEdges->edges[i].node[1]], theMesh->Y[theEdges->edges[i].node[1]]); }}
+    glEnd();
+}

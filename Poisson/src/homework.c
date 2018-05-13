@@ -68,12 +68,12 @@ void femPoissonSolve(femPoissonProblem *theProblem)
 	int i;
 	for (i = 0; i < theProblem->mesh->nElem; i++)
 	{
-		int *map = (int *) malloc(theProblem->mesh->nLocalNode * sizeof(int));
-		double *x = (double *)malloc(theProblem->mesh->nLocalNode * sizeof(double));
-		double *y = (double *)malloc(theProblem->mesh->nLocalNode * sizeof(double));
+		int *map = malloc(theProblem->mesh->nLocalNode * sizeof(int));
+		double *x = malloc(theProblem->mesh->nLocalNode * sizeof(double));
+		double *y = malloc(theProblem->mesh->nLocalNode * sizeof(double));
 		femMeshLocal(theProblem->mesh, i, map, x, y);
-		double *dphidxsi = (double *) malloc(sizeof(double) * theProblem->mesh->nLocalNode);
-		double *dphideta = (double *) malloc(sizeof(double) * theProblem->mesh->nLocalNode);
+		double *dphidxsi = malloc(sizeof(double) * theProblem->mesh->nLocalNode);
+		double *dphideta = malloc(sizeof(double) * theProblem->mesh->nLocalNode);
 		for (int ii = 0; ii < theProblem->mesh->nLocalNode; ii++)
 		{
 			double xsi = theProblem->rule->xsi[ii];
@@ -92,11 +92,11 @@ void femPoissonSolve(femPoissonProblem *theProblem)
 				dydxsi += y[a] * dphidxsi[a];
 				dydeta += y[a] * dphideta[a];
 			}
-			double *phi = (double *)malloc(sizeof(double) * theProblem->mesh->nLocalNode);
+			double *phi = malloc(sizeof(double) * theProblem->mesh->nLocalNode);
 			theProblem->space->phi2(xsi, eta, phi);
 			double J = fabs(dxdxsi*dydeta - dydxsi * dxdeta);
-			double *dphidx = (double *)malloc(sizeof(double) * theProblem->mesh->nLocalNode);
-			double *dphidy = (double *)malloc(sizeof(double) * theProblem->mesh->nLocalNode);
+			double *dphidx = malloc(sizeof(double) * theProblem->mesh->nLocalNode);
+			double *dphidy = malloc(sizeof(double) * theProblem->mesh->nLocalNode);
 			for (a = 0; a < theProblem->mesh->nLocalNode; a++)
 			{
 				dphidx[a] = 1 / J * (dphidxsi[a] * dydeta - dphideta[a] * dydxsi);
