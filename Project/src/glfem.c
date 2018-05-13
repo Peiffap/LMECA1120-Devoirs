@@ -302,8 +302,8 @@ void glfemReshapeWindows(double r, int w, int h)
 
 
     glViewport(0,0,w,h);
-    glClearColor( 0.9f, 0.9f, 0.8f, 0.0f );
- //   glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );  // for white plot
+    // glClearColor( 0.9f, 0.9f, 0.8f, 0.0f );
+    glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );  // for white plot
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
     glMatrixMode(GL_PROJECTION);
