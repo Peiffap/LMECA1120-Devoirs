@@ -11,6 +11,7 @@
 
 
 #include "glfem.h"
+#include <time.h>
 
 int main(void)
 {
@@ -28,19 +29,20 @@ int main(void)
     double iterMax = 100;
     femGrains* theGrains = femGrainsCreateSimple(n,radius,mass,radiusIn,radiusOut);
 
-	femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
+	// femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
 
-	femDiffusionProblem* problem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_NO);
+	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_NO);
 
     printf("Number of elements    : %4d\n", theProblem->mesh->nElem);
     printf("Number of local nodes : %4d\n", theProblem->mesh->nLocalNode);
     printf("Number of segments    : %4d\n", theProblem->edges->nBoundary);
-    printf("Number of unknowns    : %4d\n", theProblem->system->size);
+    printf("Number of unknowns    : %4d\n", theProblem->solver->size);
 
-    femPoissonSolve(theProblem);
-	femDiffusionCompute(problem);
+    // femPoissonSolve(theProblem);
+	femDiffusionCompute(theProblem);
+	femIterativeSolverPrintInfos(theProblem->solver);
 
-    printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->system->size));
+    // printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->system->size));
     fflush(stdout);
 
   //  A decommenter pour obtenir l'exemple de la seance d'exercice :-)
@@ -59,8 +61,21 @@ int main(void)
         glfemReshapeWindows(radiusOut,w,h);
         char theMessageTime[256];
         sprintf(theMessageTime,"Time = %g sec",t);
+		clock_t tic = clock();
+		int testConvergence;
+		// /*
+		do {
+			femDiffusionCompute(theProblem);
+			femIterativeSolverPrintInfos(theProblem->solver);
+			testConvergence = femIterativeSolverConverged(theProblem->solver);
+			printf("Thomas. \n");
+		}
+		while (testConvergence == 0);
+		// */
+		if (testConvergence == -1)  printf("    Iterative solver stopped after a maximum number of iterations\n");
+		printf("    CPU time : %.2f [sec] \n", (clock() - tic) * 1.0 /CLOCKS_PER_SEC);
         glColor3f(1,0,0); glfemDrawMessage(20,460,theMessageTime);
-		glfemPlotField(theProblem->mesh,theProblem->system->B);
+		glfemPlotField(theProblem->mesh, theProblem->soluce);
 		for (i=0 ;i < theGrains->n; i++) {
             glColor3f(1,1,1);
             glfemDrawDisk(theGrains->x[i],theGrains->y[i],theGrains->r[i]); }
@@ -92,6 +107,6 @@ int main(void)
 
     glfwTerminate();
     femGrainsFree(theGrains);
-	femPoissonFree(theProblem);
+	femDiffusionFree(theProblem);
     exit(EXIT_SUCCESS);
 }
