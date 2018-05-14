@@ -30,14 +30,14 @@ int main(void)
 
 	femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
 
-	femDiffusionProblem* problem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_NO);
+	femDiffusionProblem* problem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_NO);
 
     printf("Number of elements    : %4d\n", theProblem->mesh->nElem);
     printf("Number of local nodes : %4d\n", theProblem->mesh->nLocalNode);
     printf("Number of segments    : %4d\n", theProblem->edges->nBoundary);
     printf("Number of unknowns    : %4d\n", theProblem->system->size);
 
-    femPoissonSolve(theProblem);
+    //femPoissonSolve(theProblem);
 	femDiffusionCompute(problem);
 
     printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->system->size));
