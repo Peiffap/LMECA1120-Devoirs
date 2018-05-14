@@ -6,6 +6,8 @@
 
 /////START OF GRAINS
 
+double vext = 0.06;
+
 double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 {
 	int n = myGrains->n;
@@ -42,7 +44,7 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter, nx, ny, mSum;
 	double zeta = 0.0;
 
-	for (i = 0; i < n; i++)
+	for (i = 0; i < n; ++i)
 	{
 		// Distances
 		rCentre = sqrt(pow(x[i], 2) + pow(y[i], 2));
@@ -65,7 +67,7 @@ double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 		dvBoundary[i] += deltav;
 		zeta = fmax(zeta, fabs(deltav));
 
-		for (j = i + 1; j < n; j++)
+		for (j = i + 1; j < n; ++j)
 		{
 			// Differences de position
 			deltax = x[j] - x[i];
