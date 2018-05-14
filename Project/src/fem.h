@@ -81,25 +81,6 @@ typedef struct {
 	const double *weight;
 } femIntegration;
 
-typedef struct {
-	femSolverType type;
-	void *solver;
-} femSolver;
-
-typedef struct {
-	double *B;
-	double **A;
-	int size;
-} femFullSystem;
-
-typedef struct
-{
-	double *B;
-	double **A;
-	int size;
-	int band;
-} femBandSystem;
-
 typedef struct
 {
 	double *R;
@@ -116,12 +97,24 @@ typedef struct {
 	femEdges *edges;
 	femDiscrete *space;
 	femIntegration *rule;
-	femSolver *solver;
+	femIterativeSolver *solver;
 	int size;
 	int *number;
 	double *soluce;
 } femDiffusionProblem;
 
+
+femGrains  *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut);
+femGrains  *femGrainsCreateTiny(double radiusIn, double radiusOut);
+void        femGrainsFree(femGrains *myGrains);
+void        femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax);
+double      femGrainsContactIterate(femGrains *myGrains, double dt, int iter);
+
+double      femMin(double *x, int n);
+double      femMax(double *x, int n);
+void        femError(char *text, int line, char *file);
+void        femErrorScan(int test, int line, char *file);
+void        femWarning(char *text, int line, char *file);
 
 femIntegration      *femIntegrationCreate(int n, femElementType type);
 void                 femIntegrationFree(femIntegration *theRule);
@@ -142,39 +135,6 @@ void                 femDiscreteXsi2(femDiscrete* mySpace, double *xsi, double *
 void                 femDiscretePhi2(femDiscrete* mySpace, double xsi, double eta, double *phi);
 void                 femDiscreteDphi2(femDiscrete* mySpace, double xsi, double eta, double *dphidxsi, double *dphideta);
 
-femSolver*           femSolverFullCreate(int size);
-femSolver*           femSolverBandCreate(int size, int band);
-femSolver*           femSolverIterativeCreate(int size);
-void                 femSolverFree(femSolver* mySolver);
-void                 femSolverInit(femSolver* mySolver);
-void                 femSolverPrint(femSolver* mySolver);
-void                 femSolverPrintInfos(femSolver* mySolver);
-double*              femSolverEliminate(femSolver* mySolver);
-void                 femSolverConstrain(femSolver* mySolver, int myNode, double value);
-void                 femSolverAssemble(femSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc);
-double               femSolverGet(femSolver* mySolver, int i, int j);
-int                  femSolverConverged(femSolver *mySolver);
-
-femFullSystem*       femFullSystemCreate(int size);
-void                 femFullSystemFree(femFullSystem* mySystem);
-void                 femFullSystemInit(femFullSystem* mySystem);
-void                 femFullSystemPrint(femFullSystem* mySystem);
-void                 femFullSystemPrintInfos(femFullSystem* mySystem);
-double*              femFullSystemEliminate(femFullSystem* mySystem);
-void                 femFullSystemConstrain(femFullSystem* mySystem, int myNode, double value);
-void                 femFullSystemAssemble(femFullSystem* mySystem, double *Aloc, double *Bloc, int *map, int nLoc);
-double               femFullSystemGet(femFullSystem* mySystem, int i, int j);
-
-femBandSystem*       femBandSystemCreate(int size, int band);
-void                 femBandSystemFree(femBandSystem* myBandSystem);
-void                 femBandSystemInit(femBandSystem *myBand);
-void                 femBandSystemPrint(femBandSystem *myBand);
-void                 femBandSystemPrintInfos(femBandSystem *myBand);
-double*              femBandSystemEliminate(femBandSystem *myBand);
-void                 femBandSystemConstrain(femBandSystem *myBand, int myNode, double myValue);
-void                 femBandSystemAssemble(femBandSystem* myBandSystem, double *Aloc, double *Bloc, int *map, int nLoc);
-double               femBandSystemGet(femBandSystem* myBandSystem, int i, int j);
-
 femIterativeSolver*  femIterativeSolverCreate(int size);
 void                 femIterativeSolverFree(femIterativeSolver* mySolver);
 void                 femIterativeSolverInit(femIterativeSolver* mySolver);
@@ -183,10 +143,10 @@ void                 femIterativeSolverPrintInfos(femIterativeSolver* mySolver);
 double*              femIterativeSolverEliminate(femIterativeSolver* mySolver);
 void                 femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue);
 void                 femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc);
-double               femIterativeSolverGet(femIterativeSolver* mySolver, int i, int j);
+double               femIterativeSolverGet(femIterativeSolver* mySolver, int i, int j); //pas trouv�
 int                  femIterativeSolverConverged(femIterativeSolver *mySolver);
 
-femDiffusionProblem *femDiffusionCreate(const char *filename, femSolverType solverType, femRenumType renumType);
+femDiffusionProblem *femDiffusionCreate(const char *filename, femRenumType renumType);
 void                 femDiffusionFree(femDiffusionProblem *theProblem);
 void                 femDiffusionMeshLocal(const femDiffusionProblem *theProblem, const int i, int *map, double *x, double *y, double *u);
 void                 femDiffusionCompute(femDiffusionProblem *theProblem);
@@ -198,6 +158,12 @@ double               femMax(double *x, int n);
 void                 femError(char *text, int line, char *file);
 void                 femErrorScan(int test, int line, char *file);
 void                 femWarning(char *text, int line, char *file);
+
+typedef struct {
+    double *B;
+    double **A;
+    int size;
+} femFullSystem;
 
 typedef struct {
     femMesh *mesh;
