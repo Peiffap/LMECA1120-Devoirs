@@ -31,16 +31,16 @@ int main(void)
 
 	// femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
 
-	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_NO);
+	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_YNUM);
 
     printf("Number of elements    : %4d\n", theProblem->mesh->nElem);
     printf("Number of local nodes : %4d\n", theProblem->mesh->nLocalNode);
     printf("Number of segments    : %4d\n", theProblem->edges->nBoundary);
-    printf("Number of unknowns    : %4d\n", theProblem->solver->size);
+    printf("Number of unknowns    : %4d\n", theProblem->size);
 
     // femPoissonSolve(theProblem);
 	femDiffusionCompute(theProblem);
-	femIterativeSolverPrintInfos(theProblem->solver);
+	femSolverPrintInfos(theProblem->solver);
 
     // printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->system->size));
     fflush(stdout);
@@ -66,8 +66,8 @@ int main(void)
 		// /*
 		do {
 			femDiffusionCompute(theProblem);
-			femIterativeSolverPrintInfos(theProblem->solver);
-			testConvergence = femIterativeSolverConverged(theProblem->solver);
+			femSolverPrintInfos(theProblem->solver);
+			testConvergence = femSolverConverged(theProblem->solver);
 			printf("Thomas. \n");
 		}
 		while (testConvergence == 0);
