@@ -31,7 +31,7 @@ int main(void)
 
 	// femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
 
-	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_YNUM);
+	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_NO);
 
     printf("Number of elements    : %4d\n", theProblem->mesh->nElem);
     printf("Number of local nodes : %4d\n", theProblem->mesh->nLocalNode);
@@ -63,7 +63,7 @@ int main(void)
         sprintf(theMessageTime,"Time = %g sec",t);
 		clock_t tic = clock();
 		int testConvergence;
-		// /*
+		/*
 		do {
 			femDiffusionCompute(theProblem);
 			femSolverPrintInfos(theProblem->solver);
@@ -100,13 +100,15 @@ int main(void)
           if (glfwGetKey(window,'S') == GLFW_PRESS)
         	    theRunningMode = 0; }
 
+
+
     }
     while (glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	        (!glfwWindowShouldClose(window)));
 
 
     glfwTerminate();
-    femGrainsFree(theGrains);
 	femDiffusionFree(theProblem);
+    femGrainsFree(theGrains);
     exit(EXIT_SUCCESS);
 }

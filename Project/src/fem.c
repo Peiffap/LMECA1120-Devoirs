@@ -10,6 +10,8 @@
 
 #include "fem.h"
 
+double radiusIn  = 0.5;
+
 femGrains *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut)
 {
     int i,nContact = n*(n-1)/2;
@@ -743,7 +745,7 @@ void femBandSystemAssemble(femBandSystem* myBandSystem, double *Aloc, double *Bl
 }
 
 
-
+/////////GOTTA CHANGE TODO
 void femBandSystemConstrain(femBandSystem *myBand, int myNode, double myValue)
 {
     double  **A, *B;
@@ -962,9 +964,22 @@ void femDiffusionCompute(femDiffusionProblem *theProblem)
         femSolverAssemble(theSolver,Aloc,Bloc,Uloc,map,theSpace->n); }
 
     for (iEdge= 0; iEdge < theEdges->nEdge; iEdge++) {
-        if (theEdges->edges[iEdge].elem[1] < 0) {
-            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]],0.0);
-            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]],0.0); }}
+        if (theEdges->edges[iEdge].elem[1] < 0)
+		{
+			int x = theEdges->edges[iEdge].elem[0];
+			int y = theEdges->edges[iEdge].elem[1];
+			if(x <= radiusIn && y <= radiusIn)
+			{
+				femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]],0.0);
+	            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]],0.0);
+			}
+			else
+			{
+				femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]],10.0);
+	            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]],10.0);
+			}
+		}
+	}
 
     double *soluce = femSolverEliminate(theSolver);
     for (i = 0; i < theProblem->mesh->nNode; i++)
