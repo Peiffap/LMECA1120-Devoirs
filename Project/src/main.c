@@ -42,7 +42,7 @@ int main(void)
 	femDiffusionCompute(theProblem);
 	femSolverPrintInfos(theProblem->solver);
 
-    // printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->system->size));
+    // printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->size));
     fflush(stdout);
 
   //  A decommenter pour obtenir l'exemple de la seance d'exercice :-)

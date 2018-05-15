@@ -959,23 +959,24 @@ void femDiffusionCompute(femDiffusionProblem *theProblem)
                     Aloc[i*(theSpace->n)+j] += (dphidx[i] * dphidx[j]
                                             + dphidy[i] * dphidy[j]) * jac * weight; }}
             for (i = 0; i < theSpace->n; i++) {
-                Bloc[i] = 0;//+= phi[i] * jac *weight; }}
+                Bloc[i] = 0.0; }}//+= phi[i] * jac *weight; }}
         femSolverAssemble(theSolver,Aloc,Bloc,Uloc,map,theSpace->n); }
 
     for (iEdge= 0; iEdge < theEdges->nEdge; iEdge++) {
-        if (theEdges->edges[iEdge].elem[1] < 0)
+        if (theEdges->edges[iEdge].elem[1] == -1)
 		{
-			int x = theEdges->edges[iEdge].elem[0];
-			int y = theEdges->edges[iEdge].elem[1];
-			if(x <= radiusIn && y <= radiusIn)
+			double x = theMesh->X[theEdges->edges[iEdge].node[0]];
+			double y = theMesh->Y[theEdges->edges[iEdge].node[1]];
+			printf("x : %f, y : %f \n", x, y);
+			if(fabs(x) <= radiusIn && fabs(y) <= radiusIn)
 			{
 				femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]],0.0);
 	            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]],0.0);
 			}
 			else
 			{
-				femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]],10.0);
-	            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]],10.0);
+				femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[0]], 10.0);
+	            femSolverConstrain(theSolver,number[theEdges->edges[iEdge].node[1]], 10.0);
 			}
 		}
 	}

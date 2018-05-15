@@ -326,4 +326,20 @@ int femDiffusionComputeBand(femDiffusionProblem *theProblem)
 	return(myBand + 1);
 }
 
+int ptInTriangle(double x, double y, double x0, double y0, double x1, double y1, double x2, double y2)
+{
+    double dX = x - x2;
+    double dY = y - y2;
+    double dX21 = x2 - x1;
+    double dY12 = y1 - y2;
+    double D = dY12 * (x0 - x2) + dX21 * (y0 - y2);
+    double s = dY12 * dX + dX21 * dY;
+    double t = (y2 - y0) * dX + (x0 - x2) * dY;
+    if (D < 0)
+	{
+		return s <= 0 && t <= 0 && s + t >= D;
+	}
+    return s >= 0 && t >= 0 && s + t <= D;
+}
+
 #endif
