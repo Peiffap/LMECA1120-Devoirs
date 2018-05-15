@@ -1,116 +1,129 @@
-#include"fem.h"
-#include"limits.h"
+﻿#include"fem.h"
 
 
 #ifndef NOCONTACTITERATE
 
-/////START OF GRAINS
-
-double vext = 0.06;
-
 double femGrainsContactIterate(femGrains *myGrains, double dt, int iter)
 {
 	int n = myGrains->n;
-	double *dvBoundary = myGrains->dvBoundary;
-	double *dvContacts = myGrains->dvContacts;
-
-	if (iter == 0)
-	{
-		int ii;
-		for (ii = 0; ii < n; ii++)
-		{
-			dvBoundary[ii] = 0.0;
-			dvContacts[ii] = 0.0;
-		}
-		for (ii = n; ii < n*(n - 1) / 2.0; ii++)
-		{
-			dvContacts[ii] = 0.0;
-		}
-		return 0.0;
-	}
-
-
 	double *x = myGrains->x;
 	double *y = myGrains->y;
 	double *m = myGrains->m;
 	double *r = myGrains->r;
 	double *vy = myGrains->vy;
 	double *vx = myGrains->vx;
+	double *dvBoundary = myGrains->dvBoundary;
+	double *dvContacts = myGrains->dvContacts;
 	double rIn = myGrains->radiusIn;
 	double rOut = myGrains->radiusOut;
+	double tol = 1e-6;
 
-	int i, j;
-	int k = 0;
-	double gamma, rCentre, deltax, deltay, deltav, vn, miSum, mjSum, gammaInner, gammaOuter, deltavInner, deltavOuter, nx, ny, mSum;
 	double zeta = 0.0;
 
-	for (i = 0; i < n; ++i)
-	{
-		// Distances
-		rCentre = sqrt(pow(x[i], 2) + pow(y[i], 2));
-		gammaOuter = rOut - rCentre - r[i];
-		gammaInner = rCentre - rIn - r[i];
+	int i;
+	int j;
+	int coll = 0;
+	double distG = 0.0;
+	double gamma = 0.0;
+	double vn = 0.0;
+	double nx = 0.0;
+	double ny = 0.0;
+	double rx = 0.0;
+	double ry = 0.0;
+	double dv = 0.0;
+	double dvx = 0.0;
+	double dvy = 0.0;
+	double delta_dvContacts = 0.0;
 
-		// Normale et vitesse normale
-		nx = x[i] / rCentre;
-		ny = y[i] / rCentre;
-		vn = vx[i] * nx + vy[i] * ny;
+	if (iter == 0) {
+		for (i = 0; i < n*(n - 1) / 2; i++) {
+			dvContacts[i] = 0;
+		}
+		for (i = 0; i < n; i++) {
+			dvBoundary[i] = 0;
+		}
 
-		// Increments/changements de vitesse
-		deltavOuter = fmax(0, vn + dvBoundary[i] - (gammaOuter / dt));
-		deltavInner = fmax(0, -vn - dvBoundary[i] - (gammaInner / dt));
-		deltav = deltavOuter - deltavInner - dvBoundary[i];
-		vx[i] -= deltav * nx;
-		vy[i] -= deltav * ny;
+		return zeta;
+	}
 
-		// Autres parametres
-		dvBoundary[i] += deltav;
-		zeta = fmax(zeta, fabs(deltav));
+	for (i = 0; i < n; i++) {
+		for (j = i + 1; j < n; j++) {
+			rx = x[j] - x[i];
+			ry = y[j] - y[i];
+			distG = sqrt(pow(rx, 2) + pow(ry, 2));
+			if (distG < (rOut-rIn) /4) {
+				gamma = distG - r[i] - r[j];
+				nx = rx / distG;
+				ny = ry / distG;
+				vn = (vx[i] * nx + vy[i] * ny) - (vx[j] * nx + vy[j] * ny);
 
-		for (j = i + 1; j < n; ++j)
-		{
-			// Differences de position
-			deltax = x[j] - x[i];
-			deltay = y[j] - y[i];
+				if (vn + dvContacts[coll] - (gamma / dt) >= 0) {
+					dv = fmax(0.0, vn + dvContacts[coll] - (gamma / dt)) - dvContacts[coll];
 
-			// Distances
-			rCentre = sqrt(pow(deltax, 2) + pow(deltay, 2));
-			gamma = rCentre - r[i] - r[j];
+					dvx = -dv * nx*m[j] / (m[j] + m[i]);
+					dvy = -dv * ny*m[j] / (m[j] + m[i]);
+					vx[i] += dvx;
+					vy[i] += dvy;
+					dvx = dv * nx*m[i] / (m[j] + m[i]);
+					dvy = dv * ny*m[i] / (m[j] + m[i]);
+					vx[j] += dvx;
+					vy[j] += dvy;
 
-			// Normale et vitesse normale
-			nx = deltax / rCentre;
-			ny = deltay / rCentre;
-			vn = (vx[i] - vx[j]) * nx + (vy[i] - vy[j]) * ny;
+					delta_dvContacts = dv;
+					dvContacts[coll] += delta_dvContacts;
 
-			// Increment de vitesse
-			deltav = fmax(0.0, (vn + dvContacts[k] - gamma / dt)) - dvContacts[k];
+					zeta = fmax(zeta, fabs(dv));
+				}
+			}
+			
 
-			// Calcul des masses reduites
-			mSum = m[i] + m[j];
-			miSum = m[i] / mSum;
-			mjSum = m[j] / mSum;
-
-			// Calcul des changements de vitesse
-			vx[i] -= deltav * nx * mjSum;
-			vx[j] += deltav * nx * miSum;
-			vy[i] -= deltav * ny * mjSum;
-			vy[j] += deltav * ny * miSum;
-
-			// Parametres supplementaires
-			dvContacts[k++] += deltav;
-			zeta = fmax(zeta, fabs(deltav));
+			coll++;
 		}
 	}
+
+	double distC = 0.0;
+	double gammaIn = 0.0;
+	double gammaOut = 0.0;
+	double delta_dvBoundary = 0.0;
+	double dvo = 0.0;
+	double dvi = 0.0;
+
+
+	for (i = 0; i < n; i++) {
+		distC = sqrt(pow(x[i], 2) + pow(y[i], 2));
+		nx = x[i] / distC;
+		ny = y[i] / distC;
+		gammaOut = rOut - distC - r[i];
+		gammaIn = distC - rIn - r[i];
+		vn = vx[i] * nx + vy[i] * ny;
+
+		dvo = fmax(0, vn + dvBoundary[i] - (gammaOut / dt));
+		dvi = fmax(0, -vn - dvBoundary[i] - (gammaIn / dt));
+		dv = dvo - dvi - dvBoundary[i];
+
+		dvx = -dv * nx;
+		vx[i] += dvx;
+		dvy = -dv * ny;
+		vy[i] += dvy;
+
+		delta_dvBoundary = dv;
+		dvBoundary[i] += delta_dvBoundary;
+
+		zeta = fmax(zeta, fabs(dv));
+	}
+
 	return zeta;
+
 }
 
 #endif
 #ifndef NOUPDATE
 
-void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
+void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax, femDiffusionProblem *theProblemX, femDiffusionProblem *theProblemY, double t)
+//void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax, femDiffusionProblem *theProblemX, double t)
 {
 	int n = myGrains->n;
-	int i, iter = 0;
+	int i, j, k, iter = 0;
 	double zeta;
 	double *x = myGrains->x;
 	double *y = myGrains->y;
@@ -120,226 +133,98 @@ void femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax)
 	double gamma = myGrains->gamma;
 	double gx = myGrains->gravity[0];
 	double gy = myGrains->gravity[1];
+	double vxfluide = 1.0;
+	double vyfluide = 1.0;
+	double X1, X2, X3, Y1, Y2, Y3, Xb, Yb, J1, J2, J3;
+	double phi[4];
+	int currElem = 0;
 
 
+	// 
+	// -1- Calcul des nouvelles vitesses des grains sur base de la gravit� et de la trainee
 	//
-	// -1- Calcul des nouvelles vitesses des grains sur base de la gravite et de la trainee
-	//
+	double dvx = 0;
+	double dvy = 0;
+	//printf("gy = %f", gy);
+	for (i = 0; i < n; i++) {
+		
+		vxfluide = 0;
+		vyfluide = 0;
+		
+		if (t != 0) {
+			femMesh *theMesh = theProblemX->mesh;
+			for (j = 0; j < theMesh->nElem; j++) {
 
-	for (i = 0; i < n; i++)
-	{
-		vx[i] += (gx - (gamma * vx[i] / m[i])) * dt;
-		vy[i] += (gy - (gamma * vy[i] / m[i])) * dt;
+				//printf("caribou");
+				X1 = theMesh->X[theMesh->elem[j * 3 + 0]];
+				X2 = theMesh->X[theMesh->elem[j * 3 + 1]];
+				X3 = theMesh->X[theMesh->elem[j * 3 + 2]];
+				Xb = myGrains->x[i];
+				Y1 = theMesh->Y[theMesh->elem[j * 3 + 0]];
+				Y2 = theMesh->Y[theMesh->elem[j * 3 + 1]];
+				Y3 = theMesh->Y[theMesh->elem[j * 3 + 2]];
+				Yb = myGrains->y[i];
+				J1 = (X2 - X1)*(Yb - Y1) - (Xb - X1)*(Y2 - Y1);
+				J2 = (X2 - Xb)*(Y3 - Yb) - (X3 - Xb)*(Y2 - Yb);
+				J3 = (Xb - X1)*(Y3 - Y1) - (X3 - X1)*(Yb - Y1);
+				if (J1 > 0 && J2 > 0 && J3 > 0) {
+					currElem = j;
+					j = theMesh->nElem;
+				}
+				//printf("carotte");
+			}
+
+
+			//printf("gy = %f",gy);
+
+			double x = Xb;
+			double y = Yb;
+
+			double xsi = (x*(Y3 - Y1) - (X3 - X1)*y + (X3 - X1)*Y1 - X1 * (Y3 - Y1)) / ((Y3 - Y1)*(X2 - X1) - (X3 - X1)*(Y2 - Y1));
+			double eta = (y - (Y2 - Y1)*xsi - Y1) / (Y3 - Y1);
+			femDiscretePhi2(theProblemX->space, xsi, eta, phi);
+
+
+			for (k = 0; k < 3; k++) {
+				vxfluide += theProblemX->soluce[theMesh->elem[currElem * 3 + k]] * phi[k];
+				vyfluide += theProblemY->soluce[theMesh->elem[currElem * 3 + k]] * phi[k];
+			}
+		}
+		
+		
+		//vxfluide = vyfluide = 0;
+		
+		dvx = gx * dt - (gamma * dt / m[i])* (vx[i] - vxfluide);
+		vx[i] += dvx;
+		dvy = gy * dt - (gamma * dt / m[i])* (vy[i] - vyfluide);
+		vy[i] += dvy;
+		//printf("vy = %f\n", vy[0]);
+
+		//printf("dindon");
 	}
-
+	//printf("goéland");
 	//
-	// -2- Correction des vitesses pour tenir compte des contacts
-	//
-	do
-	{
-		zeta = femGrainsContactIterate(myGrains, dt, iter);
+	// -2- Correction des vitesses pour tenir compte des contacts        
+	//       
+	
+	do {
+		zeta = femGrainsContactIterate(myGrains, dt, iter); //zeta = delta_ v
 		iter++;
 	} while ((zeta > tol / dt && iter < iterMax) || iter == 1);
 	printf("iterations = %4d : error = %14.7e \n", iter - 1, zeta);
+	
+	//printf("vy = %f\n", vy[0]);
 
-	//
+	//  
 	// -3- Calcul des nouvelles positions sans penetrations de points entre eux
 	//
-	for (i = 0; i < n; ++i)
-	{
+	for (i = 0; i < n; ++i) {
 		x[i] += vx[i] * dt;
 		y[i] += vy[i] * dt;
+		//printf("vy = %f\n", vy[i]);
+		//printf("y = %f",y[i]);
 	}
 }
 
-/////END OF GRAINS
-
-/////START OF ITERATIVESOLVER
-
-void femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc)
-{
-	int i, j;
-	int myRow;
-	if (mySolver->iter == 0)
-	{
-		for (i = 0; i < nLoc; i++) {
-			myRow = map[i];
-			mySolver->R[myRow] -= Bloc[i];
-			for (j = 0; j < nLoc; j++) {
-				mySolver->R[myRow] += Aloc[i*nLoc + j] * Uloc[j];
-			}
-		}
-	}
-	///*
-	for (i = 0; i < nLoc; i++) {
-		myRow = map[i];
-		for (j = 0; j < nLoc; j++) {
-			int myCol = map[j];
-			mySolver->S[myRow] += Aloc[i*nLoc + j] * mySolver->D[myCol];
-		}
-	}
-	//*/
-}
-
-void femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue)
-{
-	mySolver->R[myNode] = 0.0;//myValue; car pas d'autres possibilites ?
-							  //mySolver->D[myNode] = 0.0;
-	mySolver->S[myNode] = 0.0;
-	//mySolver->X[myNode] = 0.0;
-}
-
-double *femIterativeSolverEliminate(femIterativeSolver *mySolver)
-{
-	double alpha, beta;
-	mySolver->iter++;
-	double error = 0.0; int i;
-	for (i = 0; i < mySolver->size; i++)
-	{
-		error += mySolver->R[i] * mySolver->R[i];
-	}
-	if (mySolver->iter == 1)
-	{
-		for (i = 0; i < mySolver->size; i++)
-		{
-			mySolver->X[i] = 0;
-			mySolver->D[i] = mySolver->R[i];
-		}
-	}
-	else
-	{
-		alpha = 0.0;
-		beta = 0.0;
-		for (i = 0; i < mySolver->size; i++)
-		{
-			alpha += (mySolver->S[i] * mySolver->R[i]);
-		}
-		alpha = -error / alpha;
-		for (i = 0; i < mySolver->size; i++)
-		{
-			mySolver->R[i] += alpha * mySolver->S[i];
-			beta += mySolver->R[i] * mySolver->R[i];
-		}
-		beta = beta / error;
-		for (i = 0; i < mySolver->size; i++)
-		{
-			mySolver->X[i] = alpha * mySolver->D[i];
-			mySolver->D[i] = mySolver->R[i] + beta * mySolver->D[i];
-			mySolver->S[i] = 0.0;
-		}
-	}
-	mySolver->error = sqrt(error);
-	return(mySolver->X);
-}
-
-femMesh *MeshWithGlobalAccess;
-
-int cmpY(const void * x, const void * y)
-{
-	if (MeshWithGlobalAccess->Y[*(int*)x] < MeshWithGlobalAccess->Y[*(int*)y])
-	{
-		return 1;
-	}
-	if (MeshWithGlobalAccess->Y[*(int*)x] > MeshWithGlobalAccess->Y[*(int*)y])
-	{
-		return -1;
-	}
-	return 0;
-}
-
-int cmpX(const void * x, const void * y)
-{
-	if (MeshWithGlobalAccess->X[*(int*)x] < MeshWithGlobalAccess->X[*(int*)y])
-	{
-		return 1;
-	}
-	if (MeshWithGlobalAccess->X[*(int*)x] > MeshWithGlobalAccess->X[*(int*)y])
-	{
-		return -1;
-	}
-	return 0;
-}
-
-void femDiffusionRenumber(femDiffusionProblem *theProblem, femRenumType renumType)
-{
-	int i;
-	int *tab;
-	switch (renumType) {
-	case FEM_NO:
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-			theProblem->number[i] = i;
-		break;
-	case FEM_XNUM:
-		tab = malloc(sizeof(int)*theProblem->mesh->nNode);
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-		{
-			tab[i] = i;
-		}
-		MeshWithGlobalAccess = theProblem->mesh;
-		qsort(tab, theProblem->mesh->nNode, sizeof(int), cmpX);
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-		{
-			theProblem->number[tab[i]] = i;
-		}
-		free(tab);
-		break;
-	case FEM_YNUM:
-		tab = malloc(sizeof(int)*theProblem->mesh->nNode);
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-		{
-			tab[i] = i;
-		}
-		MeshWithGlobalAccess = theProblem->mesh;
-		qsort(tab, theProblem->mesh->nNode, sizeof(int), cmpY);
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-		{
-			theProblem->number[tab[i]] = i;
-		}
-		free(tab);
-		break;
-	default: Error("Unexpected renumbering option");
-	}
-}
-
-
-int femDiffusionComputeBand(femDiffusionProblem *theProblem)
-{
-	int myBand = 0;
-	int nodes[4];
-	femMesh *theMesh = theProblem->mesh;
-	int i, j;
-	for (i = 0; i < theMesh->nElem; i++)
-	{
-		for (j = 0; j < theMesh->nLocalNode; j++)
-		{
-			nodes[j] = theProblem->number[theMesh->elem[i*theMesh->nLocalNode + j]];
-		}
-		int max = 0;
-		int min = INT_MAX;
-		for (j = 0; j < theMesh->nLocalNode; j++)
-		{
-			max = (int)fmax(max, nodes[j]);
-			min = (int)fmin(min, nodes[j]);
-		}
-		myBand = (int)fmax(myBand, (max - min));
-	}
-	return(myBand + 1);
-}
-
-int ptInTriangle(double x, double y, double x0, double y0, double x1, double y1, double x2, double y2)
-{
-    double dX = x - x2;
-    double dY = y - y2;
-    double dX21 = x2 - x1;
-    double dY12 = y1 - y2;
-    double D = dY12 * (x0 - x2) + dX21 * (y0 - y2);
-    double s = dY12 * dX + dX21 * dY;
-    double t = (y2 - y0) * dX + (x0 - x2) * dY;
-    if (D < 0)
-	{
-		return s <= 0 && t <= 0 && s + t >= D;
-	}
-    return s >= 0 && t >= 0 && s + t <= D;
-}
 
 #endif

@@ -3,7 +3,7 @@
  *  fem.h
  *  Library for MECA1120 : Finite Elements for dummies
  *
- *  Copyright (C) 2018 UCL-IMMC : Vincent Legat
+ *  Copyright (C) 2017 UCL-IMMC : Vincent Legat
  *  All rights reserved.
  *
  */
@@ -23,6 +23,87 @@
 #define TRUE  1
 
 
+
+typedef enum {FEM_TRIANGLE,FEM_QUAD} femElementType;
+typedef enum {FEM_FULL,FEM_BAND,FEM_ITER} femSolverType;
+typedef enum {FEM_NO,FEM_XNUM,FEM_YNUM} femRenumType;
+
+typedef struct {
+    int *elem;
+    double *X;
+    double *Y;
+    int nElem;
+    int nNode;
+    int nLocalNode;
+} femMesh;
+
+typedef struct {
+    int elem[2];
+    int node[2];
+} femEdge;
+
+typedef struct {
+    femMesh *mesh;
+    femEdge *edges;
+    int nEdge;
+    int nBoundary;
+} femEdges;
+
+typedef struct {
+    int n;
+    void (*x2)(double *xsi, double *eta);
+    void (*phi2)(double xsi, double eta, double *phi);
+    void (*dphi2dx)(double xsi, double eta, double *dphidxsi, double *dphideta);
+} femDiscrete;
+
+typedef struct {
+    int n;
+    const double *xsi;
+    const double *eta;
+    const double *weight;
+} femIntegration;
+
+typedef struct {
+    femSolverType type;
+    void *solver;
+} femSolver;
+
+typedef struct {
+    double *B;
+    double **A;
+    int size;
+} femFullSystem;
+
+typedef struct
+{
+    double *B;
+    double **A;
+    int size;
+    int band;
+} femBandSystem;
+
+typedef struct
+{
+    double *R;
+    double *D;
+    double *S;
+    double *X;
+    double error;
+    int size;
+    int iter;
+} femIterativeSolver;
+
+typedef struct {
+    femMesh *mesh;
+    femEdges *edges;
+    femDiscrete *space;
+    femIntegration *rule;
+    femSolver *solver;
+    int size;
+    int *number;
+    double *soluce;
+} femDiffusionProblem;
+
 typedef struct {
     int n;
     double radiusIn;
@@ -37,101 +118,7 @@ typedef struct {
     double *m;
     double *dvBoundary;
     double *dvContacts;
-	double vOut;
 } femGrains;
-
-
-femGrains  *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut);
-femGrains  *femGrainsCreateTiny(double radiusIn, double radiusOut);
-void        femGrainsFree(femGrains *myGrains);
-void        femGrainsUpdate(femGrains *myGrains, double dt, double tol, double iterMax);
-double      femGrainsContactIterate(femGrains *myGrains, double dt, int iter);
-
-double      femMin(double *x, int n);
-double      femMax(double *x, int n);
-void        femError(char *text, int line, char *file);
-void        femErrorScan(int test, int line, char *file);
-void        femWarning(char *text, int line, char *file);
-
-typedef enum { FEM_TRIANGLE, FEM_QUAD } femElementType;
-typedef enum { FEM_FULL, FEM_BAND, FEM_ITER } femSolverType;
-typedef enum { FEM_NO, FEM_XNUM, FEM_YNUM } femRenumType;
-
-typedef struct {
-	int *elem;
-	double *X;
-	double *Y;
-	int nElem;
-	int nNode;
-	int nLocalNode;
-} femMesh;
-
-typedef struct {
-	int elem[2];
-	int node[2];
-} femEdge;
-
-typedef struct {
-	femMesh *mesh;
-	femEdge *edges;
-	int nEdge;
-	int nBoundary;
-} femEdges;
-
-typedef struct {
-	int n;
-	void(*x2)(double *xsi, double *eta);
-	void(*phi2)(double xsi, double eta, double *phi);
-	void(*dphi2dx)(double xsi, double eta, double *dphidxsi, double *dphideta);
-} femDiscrete;
-
-typedef struct {
-	int n;
-	const double *xsi;
-	const double *eta;
-	const double *weight;
-} femIntegration;
-
-typedef struct {
-	femSolverType type;
-	void *solver;
-} femSolver;
-
-typedef struct {
-	double *B;
-	double **A;
-	int size;
-} femFullSystem;
-
-typedef struct
-{
-	double *B;
-	double **A;
-	int size;
-	int band;
-} femBandSystem;
-
-typedef struct
-{
-	double *R;
-	double *D;
-	double *S;
-	double *X;
-	double error;
-	int size;
-	int iter;
-} femIterativeSolver;
-
-typedef struct {
-	femMesh *mesh;
-	femEdges *edges;
-	femDiscrete *space;
-	femIntegration *rule;
-	femSolver *solver;
-	int size;
-	int *number;
-	double *soluce;
-} femDiffusionProblem;
 
 
 femIntegration      *femIntegrationCreate(int n, femElementType type);
@@ -141,7 +128,7 @@ femMesh             *femMeshRead(const char *filename);
 void                 femMeshWrite(const femMesh* myMesh, const char *filename);
 void                 femMeshFree(femMesh *theMesh);
 
-femEdges*            femEdgesCreate(femMesh *theMesh, femGrains *theGrains);
+femEdges*            femEdgesCreate(femMesh *theMesh);
 void                 femEdgesFree(femEdges *theEdges);
 void                 femEdgesPrint(femEdges *theEdges);
 int                  femEdgesCompare(const void *edgeOne, const void *edgeTwo);
@@ -154,7 +141,7 @@ void                 femDiscretePhi2(femDiscrete* mySpace, double xsi, double et
 void                 femDiscreteDphi2(femDiscrete* mySpace, double xsi, double eta, double *dphidxsi, double *dphideta);
 
 femSolver*           femSolverFullCreate(int size);
-femSolver*           femSolverBandCreate(int size, int band);
+femSolver*           femSolverBandCreate(int size,int band);
 femSolver*           femSolverIterativeCreate(int size);
 void                 femSolverFree(femSolver* mySolver);
 void                 femSolverInit(femSolver* mySolver);
@@ -197,10 +184,11 @@ void                 femIterativeSolverAssemble(femIterativeSolver* mySolver, do
 double               femIterativeSolverGet(femIterativeSolver* mySolver, int i, int j);
 int                  femIterativeSolverConverged(femIterativeSolver *mySolver);
 
-femDiffusionProblem *femDiffusionCreate(const char *filename, femSolverType solverType, femRenumType renumType, femGrains *theGrains);
+femDiffusionProblem *femDiffusionCreate(const char *filename, femSolverType solverType, femRenumType renumType);
 void                 femDiffusionFree(femDiffusionProblem *theProblem);
 void                 femDiffusionMeshLocal(const femDiffusionProblem *theProblem, const int i, int *map, double *x, double *y, double *u);
-void                 femDiffusionCompute(femDiffusionProblem *theProblem);
+void                 femDiffusionCompute(femDiffusionProblem *theProblem, femGrains *theGrains, int pick);
+void femDiffusionCombine(femDiffusionProblem *theProblem, femDiffusionProblem *theProblemY, femDiffusionProblem *theProblemX);
 void                 femDiffusionRenumber(femDiffusionProblem *theProblem, femRenumType renumType);
 int                  femDiffusionComputeBand(femDiffusionProblem *theProblem);
 
@@ -210,5 +198,10 @@ void                 femError(char *text, int line, char *file);
 void                 femErrorScan(int test, int line, char *file);
 void                 femWarning(char *text, int line, char *file);
 
+femGrains  *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut);
+femGrains  *femGrainsCreateTiny(double radiusIn, double radiusOut);
+void        femGrainsFree(femGrains *myGrains);
+void        femGrainsUpdate(femGrains *myGrains, femDiffusionProblem *theProblemX, femDiffusionProblem *theProblemY, double dt, double tol, double iterMax);
+double      femGrainsContactIterate(femGrains *myGrains, double dt, int iter);
 
 #endif
