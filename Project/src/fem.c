@@ -901,7 +901,6 @@ void femDiffusionFree(femDiffusionProblem *theProblem)
     free(theProblem);
 }
 
-
 void femDiffusionMeshLocal(const femDiffusionProblem *theProblem, const int iElem, int *map, double *x, double *y, double *u)
 {
     femMesh *theMesh = theProblem->mesh;
@@ -958,7 +957,7 @@ void femDiffusionCompute(femDiffusionProblem *theProblem)
                     Aloc[i*(theSpace->n)+j] += (dphidx[i] * dphidx[j]
                                             + dphidy[i] * dphidy[j]) * jac * weight; }}
             for (i = 0; i < theSpace->n; i++) {
-                Bloc[i] += phi[i] * jac *weight; }}
+                Bloc[i] = 0;//+= phi[i] * jac *weight; }}
         femSolverAssemble(theSolver,Aloc,Bloc,Uloc,map,theSpace->n); }
 
     for (iEdge= 0; iEdge < theEdges->nEdge; iEdge++) {
