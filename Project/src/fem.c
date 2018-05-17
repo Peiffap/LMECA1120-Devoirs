@@ -9,43 +9,44 @@
  */
 
 #include "fem.h"
-#include <stdbool.h>
+
+double vExt = 3.0;
 
 femGrains *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut)
 {
     int i,nContact = n*(n-1)/2;
-    
+
     femGrains *theGrains = malloc(sizeof(femGrains));
     theGrains->n = n;
     theGrains->radiusIn = radiusIn;
     theGrains->radiusOut = radiusOut;
     theGrains->gravity[0] =  0.0;
     theGrains->gravity[1] = -9.81;
-    theGrains->gamma = 0.2;
-    
-       
+    theGrains->gamma = 3.0;
+
+
     theGrains->x  = malloc(n*sizeof(double));
     theGrains->y  = malloc(n*sizeof(double));
     theGrains->vx = malloc(n*sizeof(double));
     theGrains->vy = malloc(n*sizeof(double));
     theGrains->r  = malloc(n*sizeof(double));
-    theGrains->m  = malloc(n*sizeof(double));       
+    theGrains->m  = malloc(n*sizeof(double));
     theGrains->dvBoundary = malloc(n * sizeof(double));
     theGrains->dvContacts = malloc(nContact * sizeof(double));
-   
+
     for(i = 0; i < n; i++) {
         theGrains->r[i] = r;
         theGrains->m[i] = m;
-		theGrains->x[i] =(i%5) * r * 2.5 - 5 * r + 1e-8; 
+        theGrains->x[i] = (i%5) * r * 2.5 - 5 * r + 1e-8;
         theGrains->y[i] = (i/5) * r * 2.5 + 2 * r + radiusIn;
         theGrains->vx[i] = 0.0;
-        theGrains->vy[i] = 0.0; 
+        theGrains->vy[i] = 0.0;
         theGrains->dvBoundary[i] = 0.0; }
- 
-    for(i = 0; i < nContact; i++)  
+
+    for(i = 0; i < nContact; i++)
         theGrains->dvContacts[i] = 0.0;
 
-  
+
     return theGrains;
 }
 
@@ -56,9 +57,9 @@ femGrains *femGrainsCreateTiny(double radiusIn, double radiusOut)
     theGrains->radiusIn   = radiusIn;
     theGrains->radiusOut  = radiusOut;
     theGrains->gravity[0] =  0.0;
-    theGrains->gravity[1] = -10.0;
-    theGrains->gamma = 0.2;
-           
+    theGrains->gravity[1] = -10;
+    theGrains->gamma = 0.0;
+
     theGrains->x  = malloc(2 * sizeof(double));
     theGrains->y  = malloc(2 * sizeof(double));
     theGrains->vx = malloc(2 * sizeof(double));
@@ -67,69 +68,25 @@ femGrains *femGrainsCreateTiny(double radiusIn, double radiusOut)
     theGrains->m  = malloc(2 * sizeof(double));
     theGrains->dvBoundary = malloc(2 * sizeof(double));
     theGrains->dvContacts = malloc(sizeof(double));
-   
+
     theGrains->r[0] = 0.1;
-    theGrains->r[1] = 0.1;  
-    theGrains->m[0] = 0.1;
-    theGrains->m[1] = 0.1; 
-	theGrains->x[0] = -0.1;
-    theGrains->x[1] = 0.1;
-	theGrains->y[0] = 1.0;
-	theGrains->y[1] = 1.0;//-radiusOut + 0.1; 
-    theGrains->vx[0] = 0.0; 
-    theGrains->vx[1] = 0.0;            
-    theGrains->vy[0] = 0.0; 
-    theGrains->vy[1] = 0.0; 
+    theGrains->r[1] = 0.1;
+    theGrains->m[0] = 1.0;
+    theGrains->m[1] = 1.0;
+    theGrains->x[0] = 0.0;
+    theGrains->x[1] = 0.0;
+    theGrains->y[0] = -radiusOut + 0.3;
+    theGrains->y[1] = -radiusOut + 0.1;
+    theGrains->vx[0] = 0.0;
+    theGrains->vx[1] = 0.0;
+    theGrains->vy[0] = 0.0;
+    theGrains->vy[1] = 0.0;
     theGrains->dvBoundary[0] = 0.0;
     theGrains->dvBoundary[1] = 0.0;
 
     theGrains->dvContacts[0] = 0.0;
 
-	theGrains->vOut = 6.0;
-     
     return theGrains;
-}
-
-femGrains *femGrainsCreateQuad(double radiusIn, double radiusOut)
-{
-	femGrains *theGrains = malloc(sizeof(femGrains));
-	theGrains->n = 4;
-	theGrains->radiusIn = radiusIn;
-	theGrains->radiusOut = radiusOut;
-	theGrains->gravity[0] = 0.0;
-	theGrains->gravity[1] = -10.0;
-	theGrains->gamma = 0.0;
-
-	theGrains->x = malloc(4 * sizeof(double));
-	theGrains->y = malloc(4 * sizeof(double));
-	theGrains->vx = malloc(4 * sizeof(double));
-	theGrains->vy = malloc(4 * sizeof(double));
-	theGrains->r = malloc(4 * sizeof(double));
-	theGrains->m = malloc(4 * sizeof(double));
-	theGrains->dvBoundary = malloc(4 * sizeof(double));
-	theGrains->dvContacts = malloc(6 * sizeof(double));
-	double r = 0.3;
-	theGrains->r[0] = 0.3;
-	theGrains->r[1] = 0.3;
-	theGrains->r[2] = 0.3;
-	theGrains->r[3] = 0.3;
-	theGrains->m[0] = 1.0;
-	theGrains->m[1] = 1.0;
-	theGrains->m[2] = 1.0;
-	theGrains->m[3] = 1.0;
-	int i;
-	for (i = 0; i < 4; i++) {
-		theGrains->x[i] = (i % 4) * r * 2.5 - 5 * r + 1e-8;
-		theGrains->y[i] = (i / 4) * r * 2.5 + 2 * r + radiusIn;
-		theGrains->vx[i] = 0.0;
-		theGrains->vy[i] = 0.0;
-		theGrains->dvBoundary[i] = 0.0;
-	}
-	for (i = 0; i < 6; i++) {
-		theGrains->dvContacts[i] = 0.0;
-	}
-
-	return theGrains;
 }
 
 void femGrainsFree(femGrains *theGrains)
@@ -145,11 +102,11 @@ void femGrainsFree(femGrains *theGrains)
     free(theGrains);
 }
 
-double femMin(double *x, int n) 
+double femMin(double *x, int n)
 {
     double myMin = x[0];
     int i;
-    for (i=1 ;i < n; i++) 
+    for (i=1 ;i < n; i++)
         myMin = fmin(myMin,x[i]);
     return myMin;
 }
@@ -158,1082 +115,602 @@ double femMax(double *x, int n)
 {
     double myMax = x[0];
     int i;
-    for (i=1 ;i < n; i++) 
+    for (i=1 ;i < n; i++)
         myMax = fmax(myMax,x[i]);
     return myMax;
 }
 
-void femError(char *text, int line, char *file)                                  
-{ 
+void femError(char *text, int line, char *file)
+{
     printf("\n-------------------------------------------------------------------------------- ");
     printf("\n  Error in %s at line %d : \n  %s\n", file, line, text);
     printf("--------------------------------------------------------------------- Yek Yek !! \n\n");
-    exit(69);                                                 
+    exit(69);
 }
 
-void femErrorScan(int test, int line, char *file)                                  
-{ 
+void femErrorScan(int test, int line, char *file)
+{
     if (test >= 0)  return;
-    
+
     printf("\n-------------------------------------------------------------------------------- ");
     printf("\n  Error in fscanf or fgets in %s at line %d : \n", file, line);
-    printf("--------------------------------------------------------------------- Yek Yek !! \n\n");   
-    exit(69);                                       
+    printf("--------------------------------------------------------------------- Yek Yek !! \n\n");
+    exit(69);
 }
 
-void femWarning(char *text, int line, char *file)                                  
-{ 
+void femWarning(char *text, int line, char *file)
+{
     printf("\n-------------------------------------------------------------------------------- ");
     printf("\n  Warning in %s at line %d : \n  %s\n", file, line, text);
-    printf("--------------------------------------------------------------------- Yek Yek !! \n\n");                                              
+    printf("--------------------------------------------------------------------- Yek Yek !! \n\n");
 }
 
-femMesh *gMesh;
-
-static int compX(void const *a, void const *b) {
-	int const *i1 = (int*)a;
-	int const *i2 = (int*)b;
-	double *x = gMesh->X;
-	if (x[*i1] - x[*i2] > 0) {
-		return -1;
-	}
-	else if (x[*i1] - x[*i2] < 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-
-static int compY(void const *a, void const *b) {
-	int const *i1 = (int*)a;
-	int const *i2 = (int*)b;
-	double *y = gMesh->Y;
-	if (y[*i1] - y[*i2] > 0) {
-		return -1;
-	}
-	else if (y[*i1] - y[*i2] < 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-
-void femDiffusionRenumber(femDiffusionProblem *theProblem, femRenumType renumType)
-{
-	int i;
-	gMesh = theProblem->mesh;
-	int nNode = theProblem->mesh->nNode;
-	int *temp = malloc(sizeof(int)*nNode);
-	switch (renumType) {
-
-	case FEM_NO:
-		for (i = 0; i < theProblem->mesh->nNode; i++)
-			theProblem->number[i] = i;
-		break;
-
-	case FEM_XNUM:
-		for (i = 0; i < theProblem->mesh->nNode; i++) {
-			temp[i] = i;
-		}
-		qsort(temp, theProblem->mesh->nNode, sizeof(int), compX);
-		for (i = 0; i < nNode; i++) {
-			theProblem->number[temp[i]] = i;
-		}
-		break;
-
-	case FEM_YNUM:
-		for (i = 0; i < theProblem->mesh->nNode; i++) {
-			temp[i] = i;
-		}
-		qsort(temp, theProblem->mesh->nNode, sizeof(int), compY);
-		for (i = 0; i < nNode; i++) {
-			theProblem->number[temp[i]] = i;
-		}
-		break;
-
-	default: Error("Unexpected renumbering option");
-	}
-	free(temp);
-}
-
-
-int femDiffusionComputeBand(femDiffusionProblem *theProblem)
-{
-	femMesh *theMesh = theProblem->mesh;
-	int *elem = theMesh->elem;
-	int nElem = theMesh->nElem;
-	int nLoc = theMesh->nLocalNode;
-	int *nbr = theProblem->number;
-	int minh;
-	int maxh;
-	int diff = -1;
-	int i; int j;
-	int vect[4];
-
-	for (i = 0; i < nElem; i++) {
-		minh = nbr[elem[i*nLoc]];
-		maxh = nbr[elem[i*nLoc]];
-		for (j = 0; j < nLoc; j++) {
-			vect[j] = nbr[elem[i*nLoc + j]];
-		}
-		for (j = 0; j<nLoc; j++) {
-			minh = fmin(minh, vect[j]);
-			maxh = fmax(maxh, vect[j]);
-		}
-		diff = fmax(diff, maxh - minh);
-	}
-	return(diff + 1);
-}
-
-void femIterativeSolverAssemble(femIterativeSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc) //Fonction remplissant les vecteurs RSDX
-{
-	int iter = mySolver->iter;
-	double *R = mySolver->R;
-	double *S = mySolver->S;
-	double *D = mySolver->D;
-
-	int i, j;
-	if (iter == 0) { //Seulement pour la méthode de la plus grande pente
-		for (i = 0; i < nLoc; i++) {
-			int myRow = map[i];
-			for (j = 0; j < nLoc; j++) {
-				R[myRow] += Aloc[i*nLoc + j] * Uloc[j];
-			}
-			R[myRow] -= Bloc[i];
-		}
-	}
-
-	for (i = 0; i < nLoc; i++) {
-		int myRow = map[i];
-		for (j = 0; j < nLoc; j++) {
-			int myCol = map[j];
-			S[myRow] += Aloc[i*nLoc + j] * D[myCol];
-		}
-	}
-}
-
-void femIterativeSolverConstrain(femIterativeSolver* mySolver, int myNode, double myValue)
-{
-	mySolver->X[myNode] = myValue;
-	mySolver->R[myNode] = myValue;
-	mySolver->S[myNode] = myValue;
-	mySolver->D[myNode] = myValue;
-}
-
-double *femIterativeSolverEliminate(femIterativeSolver *mySolver)
-{
-
-	double alpha = 0.0;
-	double beta = 0.0;
-	double *R = mySolver->R;
-	double *S = mySolver->S;
-	double *D = mySolver->D;
-	double *X = mySolver->X;
-	double numA = 0.0;
-	double denomA = 0.0;
-	double numB = 0.0;
-	double denomB = 0.0;
-	double error = 0.0;
-	int i;
-
-	for (i = 0; i < mySolver->size; i++) {
-		error += R[i] * R[i];
-	}
-	mySolver->error = sqrt(error);
-
-	if (mySolver->iter == 0) {
-		mySolver->iter++;
-		for (i = 0; i < mySolver->size; i++) {
-			X[i] = 0;
-			D[i] = R[i];
-		}
-		return(X);
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		numA += R[i] * R[i];
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		denomA += S[i] * R[i];
-	}
-
-	alpha = -numA / denomA;
-
-	for (i = 0; i < mySolver->size; i++) {
-		X[i] = D[i] * alpha;
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		denomB += R[i] * R[i];
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		R[i] += alpha * S[i];
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		numB += R[i] * R[i];
-	}
-
-	beta = numB / denomB;
-
-	for (i = 0; i < mySolver->size; i++) {
-		D[i] = R[i] + beta * D[i];
-	}
-
-	for (i = 0; i < mySolver->size; i++) {
-		S[i] = 0;
-	}
-
-	mySolver->iter++;
-	return(X);
-}
-
-
-static const double _gaussQuad4Xsi[4] = { -0.577350269189626,-0.577350269189626, 0.577350269189626, 0.577350269189626 };
-static const double _gaussQuad4Eta[4] = { 0.577350269189626,-0.577350269189626,-0.577350269189626, 0.577350269189626 };
-static const double _gaussQuad4Weight[4] = { 1.000000000000000, 1.000000000000000, 1.000000000000000, 1.000000000000000 };
-static const double _gaussTri3Xsi[3] = { 0.166666666666667, 0.666666666666667, 0.166666666666667 };
-static const double _gaussTri3Eta[3] = { 0.166666666666667, 0.166666666666667, 0.666666666666667 };
-static const double _gaussTri3Weight[3] = { 0.166666666666667, 0.166666666666667, 0.166666666666667 };
+static const double _gaussQuad4Xsi[4]    = {-0.577350269189626,-0.577350269189626, 0.577350269189626, 0.577350269189626};
+static const double _gaussQuad4Eta[4]    = { 0.577350269189626,-0.577350269189626,-0.577350269189626, 0.577350269189626};
+static const double _gaussQuad4Weight[4] = { 1.000000000000000, 1.000000000000000, 1.000000000000000, 1.000000000000000};
+static const double _gaussTri3Xsi[3]     = { 0.166666666666667, 0.666666666666667, 0.166666666666667};
+static const double _gaussTri3Eta[3]     = { 0.166666666666667, 0.166666666666667, 0.666666666666667};
+static const double _gaussTri3Weight[3]  = { 0.166666666666667, 0.166666666666667, 0.166666666666667};
 
 
 femIntegration *femIntegrationCreate(int n, femElementType type)
 {
-	femIntegration *theRule = malloc(sizeof(femIntegration));
-	if (type == FEM_QUAD && n == 4) {
-		theRule->n = 4;
-		theRule->xsi = _gaussQuad4Xsi;
-		theRule->eta = _gaussQuad4Eta;
-		theRule->weight = _gaussQuad4Weight;
-	}
-	else if (type == FEM_TRIANGLE && n == 3) {
-		theRule->n = 3;
-		theRule->xsi = _gaussTri3Xsi;
-		theRule->eta = _gaussTri3Eta;
-		theRule->weight = _gaussTri3Weight;
-	}
-	else Error("Cannot create such an integration rule !");
-	return theRule;
+    femIntegration *theRule = malloc(sizeof(femIntegration));
+    if (type == FEM_QUAD && n == 4) {
+        theRule->n      = 4;
+        theRule->xsi    = _gaussQuad4Xsi;
+        theRule->eta    = _gaussQuad4Eta;
+        theRule->weight = _gaussQuad4Weight; }
+    else if (type == FEM_TRIANGLE && n == 3) {
+        theRule->n      = 3;
+        theRule->xsi    = _gaussTri3Xsi;
+        theRule->eta    = _gaussTri3Eta;
+        theRule->weight = _gaussTri3Weight; }
+    else Error("Cannot create such an integration rule !");
+    return theRule;
 }
 
 void femIntegrationFree(femIntegration *theRule)
 {
-	free(theRule);
+    free(theRule);
 }
 
 void _q1c0_x(double *xsi, double *eta)
 {
-	xsi[0] = 1.0;  eta[0] = 1.0;
-	xsi[1] = -1.0;  eta[1] = 1.0;
-	xsi[2] = -1.0;  eta[2] = -1.0;
-	xsi[3] = 1.0;  eta[3] = -1.0;
+    xsi[0] =  1.0;  eta[0] =  1.0;
+    xsi[1] = -1.0;  eta[1] =  1.0;
+    xsi[2] = -1.0;  eta[2] = -1.0;
+    xsi[3] =  1.0;  eta[3] = -1.0;
 }
 
 void _q1c0_phi(double xsi, double eta, double *phi)
 {
-	phi[0] = (1.0 + xsi) * (1.0 + eta) / 4.0;
-	phi[1] = (1.0 - xsi) * (1.0 + eta) / 4.0;
-	phi[2] = (1.0 - xsi) * (1.0 - eta) / 4.0;
-	phi[3] = (1.0 + xsi) * (1.0 - eta) / 4.0;
+    phi[0] = (1.0 + xsi) * (1.0 + eta) / 4.0;
+    phi[1] = (1.0 - xsi) * (1.0 + eta) / 4.0;
+    phi[2] = (1.0 - xsi) * (1.0 - eta) / 4.0;
+    phi[3] = (1.0 + xsi) * (1.0 - eta) / 4.0;
 }
 
 void _q1c0_dphidx(double xsi, double eta, double *dphidxsi, double *dphideta)
 {
-	dphidxsi[0] = (1.0 + eta) / 4.0;
-	dphidxsi[1] = -(1.0 + eta) / 4.0;
-	dphidxsi[2] = -(1.0 - eta) / 4.0;
-	dphidxsi[3] = (1.0 - eta) / 4.0;
-	dphideta[0] = (1.0 + xsi) / 4.0;
-	dphideta[1] = (1.0 - xsi) / 4.0;
-	dphideta[2] = -(1.0 - xsi) / 4.0;
-	dphideta[3] = -(1.0 + xsi) / 4.0;
+    dphidxsi[0] =   (1.0 + eta) / 4.0;
+    dphidxsi[1] = - (1.0 + eta) / 4.0;
+    dphidxsi[2] = - (1.0 - eta) / 4.0;
+    dphidxsi[3] =   (1.0 - eta) / 4.0;
+    dphideta[0] =   (1.0 + xsi) / 4.0;
+    dphideta[1] =   (1.0 - xsi) / 4.0;
+    dphideta[2] = - (1.0 - xsi) / 4.0;
+    dphideta[3] = - (1.0 + xsi) / 4.0;
 
 }
 
 void _p1c0_x(double *xsi, double *eta)
 {
-	xsi[0] = 0.0;  eta[0] = 0.0;
-	xsi[1] = 1.0;  eta[1] = 0.0;
-	xsi[2] = 0.0;  eta[2] = 1.0;
+    xsi[0] =  0.0;  eta[0] =  0.0;
+    xsi[1] =  1.0;  eta[1] =  0.0;
+    xsi[2] =  0.0;  eta[2] =  1.0;
 }
 
 void _p1c0_phi(double xsi, double eta, double *phi)
 {
-	phi[0] = 1 - xsi - eta;
-	phi[1] = xsi;
-	phi[2] = eta;
+    phi[0] = 1 - xsi - eta;
+    phi[1] = xsi;
+    phi[2] = eta;
 }
 
 void _p1c0_dphidx(double xsi, double eta, double *dphidxsi, double *dphideta)
 {
-	dphidxsi[0] = -1.0;
-	dphidxsi[1] = 1.0;
-	dphidxsi[2] = 0.0;
-	dphideta[0] = -1.0;
-	dphideta[1] = 0.0;
-	dphideta[2] = 1.0;
+    dphidxsi[0] = -1.0;
+    dphidxsi[1] =  1.0;
+    dphidxsi[2] =  0.0;
+    dphideta[0] = -1.0;
+    dphideta[1] =  0.0;
+    dphideta[2] =  1.0;
 
 }
 
 
 femDiscrete *femDiscreteCreate(int n, femElementType type)
 {
-	femDiscrete *theSpace = malloc(sizeof(femDiscrete));
-	if (type == FEM_QUAD && n == 4) {
-		theSpace->n = 4;
-		theSpace->x2 = _q1c0_x;
-		theSpace->phi2 = _q1c0_phi;
-		theSpace->dphi2dx = _q1c0_dphidx;
-	}
-	else if (type == FEM_TRIANGLE && n == 3) {
-		theSpace->n = 3;
-		theSpace->x2 = _p1c0_x;
-		theSpace->phi2 = _p1c0_phi;
-		theSpace->dphi2dx = _p1c0_dphidx;
-	}
-	else Error("Cannot create such a discrete space !");
-	return theSpace;
+    femDiscrete *theSpace = malloc(sizeof(femDiscrete));
+    if (type == FEM_QUAD && n == 4) {
+        theSpace->n       = 4;
+        theSpace->x2      = _q1c0_x;
+        theSpace->phi2    = _q1c0_phi;
+        theSpace->dphi2dx = _q1c0_dphidx; }
+    else if (type == FEM_TRIANGLE && n == 3) {
+        theSpace->n       = 3;
+        theSpace->x2      = _p1c0_x;
+        theSpace->phi2    = _p1c0_phi;
+        theSpace->dphi2dx = _p1c0_dphidx; }
+    else Error("Cannot create such a discrete space !");
+    return theSpace;
 }
 
 void femDiscreteFree(femDiscrete *theSpace)
 {
-	free(theSpace);
+    free(theSpace);
 }
 
 void femDiscreteXsi2(femDiscrete* mySpace, double *xsi, double *eta)
 {
-	mySpace->x2(xsi, eta);
+    mySpace->x2(xsi,eta);
 }
 
 void femDiscretePhi2(femDiscrete* mySpace, double xsi, double eta, double *phi)
 {
-	mySpace->phi2(xsi, eta, phi);
+    mySpace->phi2(xsi,eta,phi);
 }
 
 void femDiscreteDphi2(femDiscrete* mySpace, double xsi, double eta, double *dphidxsi, double *dphideta)
 {
-	mySpace->dphi2dx(xsi, eta, dphidxsi, dphideta);
+    mySpace->dphi2dx(xsi,eta,dphidxsi,dphideta);
 }
 
 void femDiscretePrint(femDiscrete *mySpace)
 {
-	int i, j;
-	int n = mySpace->n;
-	double xsi[4], eta[4], phi[4], dphidxsi[4], dphideta[4];
+    int i,j;
+    int n = mySpace->n;
+    double xsi[4], eta[4], phi[4], dphidxsi[4], dphideta[4];
 
-	femDiscreteXsi2(mySpace, xsi, eta);
-	for (i = 0; i < n; i++) {
+    femDiscreteXsi2(mySpace,xsi,eta);
+    for (i=0; i < n; i++) {
 
-		femDiscretePhi2(mySpace, xsi[i], eta[i], phi);
-		femDiscreteDphi2(mySpace, xsi[i], eta[i], dphidxsi, dphideta);
+        femDiscretePhi2(mySpace,xsi[i],eta[i],phi);
+        femDiscreteDphi2(mySpace,xsi[i],eta[i],dphidxsi,dphideta);
 
-		for (j = 0; j < n; j++) {
-			printf("(xsi=%+.1f,eta=%+.1f) : ", xsi[i], eta[i]);
-			printf(" phi(%d)=%+.1f", j, phi[j]);
-			printf("   dphidxsi(%d)=%+.1f", j, dphidxsi[j]);
-			printf("   dphideta(%d)=%+.1f \n", j, dphideta[j]);
-		}
-		printf(" \n");
-	}
+        for (j=0; j < n; j++)  {
+            printf("(xsi=%+.1f,eta=%+.1f) : ",xsi[i],eta[i]);
+            printf(" phi(%d)=%+.1f",j,phi[j]);
+            printf("   dphidxsi(%d)=%+.1f",j,dphidxsi[j]);
+            printf("   dphideta(%d)=%+.1f \n",j,dphideta[j]);  }
+        printf(" \n"); }
 }
 
 
 
 femMesh *femMeshRead(const char *filename)
 {
-	femMesh *theMesh = malloc(sizeof(femMesh));
+    femMesh *theMesh = malloc(sizeof(femMesh));
 
-	int i, trash, *elem;
+    int i,trash,*elem;
 
-	FILE* file = fopen(filename, "r");
-	if (file == NULL) Error("No mesh file !");
+    FILE* file = fopen(filename,"r");
+    if (file == NULL) Error("No mesh file !");
 
-	ErrorScan(fscanf(file, "Number of nodes %d \n", &theMesh->nNode));
-	theMesh->X = malloc(sizeof(double)*theMesh->nNode);
-	theMesh->Y = malloc(sizeof(double)*theMesh->nNode);
-	for (i = 0; i < theMesh->nNode; ++i) {
-		ErrorScan(fscanf(file, "%d : %le %le \n", &trash, &theMesh->X[i], &theMesh->Y[i]));
-	}
+    ErrorScan(fscanf(file, "Number of nodes %d \n", &theMesh->nNode));
+    theMesh->X = malloc(sizeof(double)*theMesh->nNode);
+    theMesh->Y = malloc(sizeof(double)*theMesh->nNode);
+    for (i = 0; i < theMesh->nNode; ++i) {
+        ErrorScan(fscanf(file,"%d : %le %le \n",&trash,&theMesh->X[i],&theMesh->Y[i])); }
 
-	char str[256]; if (fgets(str, sizeof(str), file) == NULL) Error("Corrupted mesh file !");
+    char str[256]; if (fgets(str, sizeof(str), file) == NULL) Error("Corrupted mesh file !");
 
-	if (!strncmp(str, "Number of triangles", 19)) {
-		ErrorScan(sscanf(str, "Number of triangles %d \n", &theMesh->nElem));
-		theMesh->elem = malloc(sizeof(int) * 3 * theMesh->nElem);
-		theMesh->nLocalNode = 3;
-		for (i = 0; i < theMesh->nElem; ++i) {
-			elem = &(theMesh->elem[i * 3]);
-			ErrorScan(fscanf(file, "%d : %d %d %d\n", &trash, &elem[0], &elem[1], &elem[2]));
-		}
-	}
-	else if (!strncmp(str, "Number of quads", 15)) {
-		printf("%s \n", str);
-		ErrorScan(sscanf(str, "Number of quads %d \n", &theMesh->nElem));
-		theMesh->elem = malloc(sizeof(int) * 4 * theMesh->nElem);
-		theMesh->nLocalNode = 4;
-		for (i = 0; i < theMesh->nElem; ++i) {
-			elem = &(theMesh->elem[i * 4]);
-			ErrorScan(fscanf(file, "%d : %d %d %d %d\n", &trash, &elem[0], &elem[1], &elem[2], &elem[3]));
-		}
-	}
+    if (!strncmp(str,"Number of triangles",19))  {
+        ErrorScan(sscanf(str,"Number of triangles %d \n", &theMesh->nElem));
+        theMesh->elem = malloc(sizeof(int)*3*theMesh->nElem);
+        theMesh->nLocalNode = 3;
+        for (i = 0; i < theMesh->nElem; ++i) {
+            elem = &(theMesh->elem[i*3]);
+            ErrorScan(fscanf(file,"%d : %d %d %d\n", &trash,&elem[0],&elem[1],&elem[2])); }}
+    else if (!strncmp(str,"Number of quads",15))  {
+        printf("%s \n",str);
+        ErrorScan(sscanf(str,"Number of quads %d \n", &theMesh->nElem));
+        theMesh->elem = malloc(sizeof(int)*4*theMesh->nElem);
+        theMesh->nLocalNode = 4;
+        for (i = 0; i < theMesh->nElem; ++i) {
+            elem = &(theMesh->elem[i*4]);
+            ErrorScan(fscanf(file,"%d : %d %d %d %d\n", &trash,&elem[0],&elem[1],&elem[2],&elem[3])); }}
 
-	fclose(file);
-	return theMesh;
+    fclose(file);
+    return theMesh;
 }
 
 void femMeshFree(femMesh *theMesh)
 {
-	free(theMesh->X);
-	free(theMesh->Y);
-	free(theMesh->elem);
-	free(theMesh);
+    free(theMesh->X);
+    free(theMesh->Y);
+    free(theMesh->elem);
+    free(theMesh);
 }
 
 void femMeshWrite(const femMesh *theMesh, const char *filename)
 {
-	int i, *elem;
+    int i,*elem;
 
-	FILE* file = fopen(filename, "w");
+    FILE* file = fopen(filename,"w");
 
-	fprintf(file, "Number of nodes %d \n", theMesh->nNode);
-	for (i = 0; i < theMesh->nNode; ++i) {
-		fprintf(file, "%6d : %14.7e %14.7e \n", i, theMesh->X[i], theMesh->Y[i]);
-	}
+    fprintf(file, "Number of nodes %d \n", theMesh->nNode);
+    for (i = 0; i < theMesh->nNode; ++i) {
+        fprintf(file,"%6d : %14.7e %14.7e \n",i,theMesh->X[i],theMesh->Y[i]); }
 
-	if (theMesh->nLocalNode == 4) {
-		fprintf(file, "Number of quads %d \n", theMesh->nElem);
-		for (i = 0; i < theMesh->nElem; ++i) {
-			elem = &(theMesh->elem[i * 4]);
-			fprintf(file, "%6d : %6d %6d %6d %6d \n", i, elem[0], elem[1], elem[2], elem[3]);
-		}
-	}
-	else if (theMesh->nLocalNode == 3) {
-		fprintf(file, "Number of triangles %d \n", theMesh->nElem);
-		for (i = 0; i < theMesh->nElem; ++i) {
-			elem = &(theMesh->elem[i * 3]);
-			fprintf(file, "%6d : %6d %6d %6d \n", i, elem[0], elem[1], elem[2]);
-		}
-	}
+    if (theMesh->nLocalNode == 4) {
+        fprintf(file, "Number of quads %d \n", theMesh->nElem);
+        for (i = 0; i < theMesh->nElem; ++i) {
+            elem = &(theMesh->elem[i*4]);
+            fprintf(file,"%6d : %6d %6d %6d %6d \n", i,elem[0],elem[1],elem[2],elem[3]);   }}
+    else if (theMesh->nLocalNode == 3) {
+        fprintf(file, "Number of triangles %d \n", theMesh->nElem);
+        for (i = 0; i < theMesh->nElem; ++i) {
+            elem = &(theMesh->elem[i*3]);
+            fprintf(file,"%6d : %6d %6d %6d \n", i,elem[0],elem[1],elem[2]);   }}
 
-	fclose(file);
+    fclose(file);
 }
 
 femEdges *femEdgesCreate(femMesh *theMesh, femGrains *theGrains)
 {
-	femEdges *theEdges = malloc(sizeof(femEdges));
-	int nLoc = theMesh->nLocalNode;
-	int i, j, n = theMesh->nElem * nLoc;
-	femEdge* edges = malloc(n * sizeof(femEdge));
-	theEdges->mesh = theMesh;
-	theEdges->edges = edges;
-	theEdges->nEdge = n;
-	theEdges->nBoundary = n;
+    femEdges *theEdges = malloc(sizeof(femEdges));
+    int nLoc = theMesh->nLocalNode;
+    int i,j,n = theMesh->nElem * nLoc;
+    femEdge* edges = malloc(n * sizeof(femEdge));
+    theEdges->mesh  = theMesh;
+    theEdges->edges = edges;
+    theEdges->nEdge = n;
+    theEdges->nBoundary = n;
 
-	for (i = 0; i < theMesh->nElem; i++) {
-		int *elem = &(theMesh->elem[i*nLoc]);
-		for (j = 0; j < nLoc; j++) {
-			int id = i * nLoc + j;
-			edges[id].elem[0] = i;
-			edges[id].elem[1] = -1;
-			edges[id].node[0] = elem[j];
-			edges[id].node[1] = elem[(j + 1) % nLoc];
-		}
-	}
+    for (i = 0; i < theMesh->nElem; i++) {
+        int *elem = &(theMesh->elem[i*nLoc]);
+        for (j = 0; j < nLoc; j++) {
+            int id = i * nLoc + j;
+            edges[id].elem[0] = i;
+            edges[id].elem[1] = -1;
+            edges[id].node[0] = elem[j];
+            edges[id].node[1] = elem[(j + 1) % nLoc]; }}
 
-	qsort(theEdges->edges, theEdges->nEdge, sizeof(femEdge), femEdgesCompare);
+    qsort(theEdges->edges, theEdges->nEdge, sizeof(femEdge), femEdgesCompare);
 
-	int index = 0;
-	int nBoundary = 0;
+    int index = 0;
+    int nBoundary = 0;
 
-	for (i = 0; i < theEdges->nEdge; i++) {
-		if (i == theEdges->nEdge - 1 || femEdgesCompare(&edges[i], &edges[i + 1]) != 0) {
-			edges[index] = edges[i];
-			int theIndex = edges[index].node[1];
-			double xNode = theMesh->X[theIndex];
-			double yNode = theMesh->Y[edges[index].node[1]];
-			if (fabs(sqrt(xNode*xNode + yNode * yNode) - theGrains->radiusIn) < fabs(sqrt(xNode*xNode + yNode * yNode) - theGrains->radiusOut)) { //
-				edges[index].elem[1] = -2;
-			}
-			nBoundary++;
-		}
-		else {
-			edges[index] = edges[i];
-			edges[index].elem[1] = edges[i + 1].elem[0];
-			i = i + 1;
-		}
-		index++;
-	}
+    for (i=0; i < theEdges->nEdge; i++) {
+      if (i == theEdges->nEdge - 1 || femEdgesCompare(&edges[i],&edges[i+1]) != 0) {
+              edges[index] = edges[i];
+			  int in = edges[index].node[1];
+			  double xNode = theMesh->X[in];
+			  double yNode = theMesh->Y[in];
+			  if (fabs(xNode) <= theGrains->radiusIn && fabs(yNode) <= theGrains->radiusIn) {
+				  edges[index].elem[1] = -2;
+			  }
+              nBoundary++; }
+      else {  edges[index] = edges[i];
+              edges[index].elem[1] = edges[i+1].elem[0];
+              i = i+1;}
+      index++; }
 
-	theEdges->edges = realloc(edges, index * sizeof(femEdge));
-	theEdges->nEdge = index;
-	theEdges->nBoundary = nBoundary;
-	return theEdges;
+    theEdges->edges = realloc(edges, index * sizeof(femEdge));
+    theEdges->nEdge = index;
+    theEdges->nBoundary = nBoundary;
+    return theEdges;
 }
 
 void femEdgesPrint(femEdges *theEdges)
 {
-	int i;
-	for (i = 0; i < theEdges->nEdge; ++i) {
-		printf("%6d : %4d %4d : %4d %4d \n", i,
-			theEdges->edges[i].node[0], theEdges->edges[i].node[1],
-			theEdges->edges[i].elem[0], theEdges->edges[i].elem[1]);
-	}
+    int i;
+    for (i = 0; i < theEdges->nEdge; ++i) {
+        printf("%6d : %4d %4d : %4d %4d \n",i,
+               theEdges->edges[i].node[0],theEdges->edges[i].node[1],
+               theEdges->edges[i].elem[0],theEdges->edges[i].elem[1]); }
 }
 
 void femEdgesFree(femEdges *theEdges)
 {
-	free(theEdges->edges);
-	free(theEdges);
+    free(theEdges->edges);
+    free(theEdges);
 }
 
 int femEdgesCompare(const void *edgeOne, const void *edgeTwo)
 {
-	int *nodeOne = ((femEdge*)edgeOne)->node;
-	int *nodeTwo = ((femEdge*)edgeTwo)->node;
-	int  diffMin = (int) fmin(nodeOne[0], nodeOne[1]) - (int) fmin(nodeTwo[0], nodeTwo[1]);
-	int  diffMax = (int) fmax(nodeOne[0], nodeOne[1]) - (int) fmax(nodeTwo[0], nodeTwo[1]);
+    int *nodeOne = ((femEdge*) edgeOne)->node;
+    int *nodeTwo = ((femEdge*) edgeTwo)->node;
+    int  diffMin = fmin(nodeOne[0],nodeOne[1]) - fmin(nodeTwo[0],nodeTwo[1]);
+    int  diffMax = fmax(nodeOne[0],nodeOne[1]) - fmax(nodeTwo[0],nodeTwo[1]);
 
-	if (diffMin < 0)    return  1;
-	if (diffMin > 0)    return -1;
-	if (diffMax < 0)    return  1;
-	if (diffMax > 0)    return -1;
-	return  0;
-}
-
-femSolver *femSolverFullCreate(int size)
-{
-	femSolver *mySolver = malloc(sizeof(femSolver));
-	mySolver->type = FEM_FULL;
-	mySolver->solver = (femSolver *)femFullSystemCreate(size);
-	return(mySolver);
+    if (diffMin < 0)    return  1;
+    if (diffMin > 0)    return -1;
+    if (diffMax < 0)    return  1;
+    if (diffMax > 0)    return -1;
+                        return  0;
 }
 
 femSolver *femSolverBandCreate(int size, int band)
 {
-	femSolver *mySolver = malloc(sizeof(femSolver));
-	mySolver->type = FEM_BAND;
-	mySolver->solver = (femSolver *)femBandSystemCreate(size, band);
-	return(mySolver);
+    femSolver *mySolver = malloc(sizeof(femSolver));
+    mySolver->type = FEM_BAND;
+    mySolver->solver = (femSolver *)femBandSystemCreate(size,band);
+    return(mySolver);
 }
 
-femSolver *femSolverIterativeCreate(int size)
-{
-	femSolver *mySolver = malloc(sizeof(femSolver));
-	mySolver->type = FEM_ITER;
-	mySolver->solver = (femSolver *)femIterativeSolverCreate(size);
-	return(mySolver);
-}
 
 void femSolverFree(femSolver *mySolver)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemFree((femFullSystem *)mySolver->solver); break;
-	case FEM_BAND: femBandSystemFree((femBandSystem *)mySolver->solver); break;
-	case FEM_ITER: femIterativeSolverFree((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
-	free(mySolver);
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemFree((femBandSystem *)mySolver->solver); break;
+        default : Error("Unexpected solver type"); }
+    free(mySolver);
 }
 
 void femSolverInit(femSolver *mySolver)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemInit((femFullSystem *)mySolver->solver); break;
-	case FEM_BAND: femBandSystemInit((femBandSystem *)mySolver->solver); break;
-	case FEM_ITER: femIterativeSolverInit((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemInit((femBandSystem *)mySolver->solver); break;
+        default : Error("Unexpected solver type"); }
 }
 
 
-double femSolverGet(femSolver *mySolver, int i, int j)
+double femSolverGet(femSolver *mySolver,int i,int j)
 {
-	double value = 0;
-	switch (mySolver->type) {
-	case FEM_FULL: value = femFullSystemGet((femFullSystem *)mySolver->solver, i, j); break;
-	case FEM_BAND: value = femBandSystemGet((femBandSystem *)mySolver->solver, i, j); break;
-	case FEM_ITER: value = (i == j); break;
-	default: Error("Unexpected solver type");
-	}
-	return(value);
+    double value = 0;
+    switch (mySolver->type) {
+        case FEM_BAND : value = femBandSystemGet((femBandSystem *)mySolver->solver,i,j); break;
+        default : Error("Unexpected solver type"); }
+    return(value);
 }
 
 void femSolverPrint(femSolver *mySolver)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemPrint((femFullSystem *)mySolver->solver); break;
-	case FEM_BAND: femBandSystemPrint((femBandSystem *)mySolver->solver); break;
-	case FEM_ITER: femIterativeSolverPrint((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemPrint((femBandSystem *)mySolver->solver); break;
+        default : Error("Unexpected solver type"); }
 }
 
 void femSolverPrintInfos(femSolver *mySolver)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemPrintInfos((femFullSystem *)mySolver->solver); break;
-	case FEM_BAND: femBandSystemPrintInfos((femBandSystem *)mySolver->solver); break;
-	case FEM_ITER: femIterativeSolverPrintInfos((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemPrintInfos((femBandSystem *)mySolver->solver); break;
+        default : Error("Unexpected solver type"); }
 }
 
 
-void femSolverAssemble(femSolver* mySolver, double *Aloc, double *Bloc, double *Uloc, int *map, int nLoc)
+void femSolverAssemble(femSolver* mySolver, double *Aloc, double *Bloc, double *Uloc,int *map, int nLoc)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemAssemble((femFullSystem *)mySolver->solver, Aloc, Bloc, map, nLoc); break;
-	case FEM_BAND: femBandSystemAssemble((femBandSystem *)mySolver->solver, Aloc, Bloc, map, nLoc); break;
-	case FEM_ITER: femIterativeSolverAssemble((femIterativeSolver *)mySolver->solver, Aloc, Bloc, Uloc, map, nLoc); break;
-	default: Error("Unexpected solver type");
-	}
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemAssemble((femBandSystem *)mySolver->solver,Aloc,Bloc,map,nLoc); break;
+        default : Error("Unexpected solver type"); }
 }
 
 void femSolverConstrain(femSolver *mySolver, int myNode, double myValue)
 {
-	switch (mySolver->type) {
-	case FEM_FULL: femFullSystemConstrain((femFullSystem *)mySolver->solver, myNode, myValue); break;
-	case FEM_BAND: femBandSystemConstrain((femBandSystem *)mySolver->solver, myNode, myValue); break;
-	case FEM_ITER: femIterativeSolverConstrain((femIterativeSolver *)mySolver->solver, myNode, myValue); break;
-	default: Error("Unexpected solver type");
-	}
+    switch (mySolver->type) {
+        case FEM_BAND : femBandSystemConstrain((femBandSystem *)mySolver->solver,myNode,myValue); break;
+        default : Error("Unexpected solver type"); }
 }
 
 double *femSolverEliminate(femSolver *mySolver)
 {
-	double *soluce;
-	switch (mySolver->type) {
-	case FEM_FULL: soluce = femFullSystemEliminate((femFullSystem *)mySolver->solver); break;
-	case FEM_BAND: soluce = femBandSystemEliminate((femBandSystem *)mySolver->solver); break;
-	case FEM_ITER: soluce = femIterativeSolverEliminate((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
-	return(soluce);
+    double *soluce;
+    switch (mySolver->type) {
+        case FEM_BAND : soluce = femBandSystemEliminate((femBandSystem *)mySolver->solver); break;
+        default : Error("Unexpected solver type"); }
+    return(soluce);
 }
 
 
 
 int femSolverConverged(femSolver *mySolver)
 {
-	int  testConvergence;
-	switch (mySolver->type) {
-	case FEM_FULL: testConvergence = 1; break;
-	case FEM_BAND: testConvergence = 1; break;
-	case FEM_ITER: testConvergence = femIterativeSolverConverged((femIterativeSolver *)mySolver->solver); break;
-	default: Error("Unexpected solver type");
-	}
-	return(testConvergence);
-}
-
-
-femFullSystem *femFullSystemCreate(int size)
-{
-	femFullSystem *theSystem = malloc(sizeof(femFullSystem));
-	theSystem->A = malloc(sizeof(double*) * size);
-	theSystem->B = malloc(sizeof(double) * size * (size + 1));
-	theSystem->A[0] = theSystem->B + size;
-	theSystem->size = size;
-	int i;
-	for (i = 1; i < size; i++)
-		theSystem->A[i] = theSystem->A[i - 1] + size;
-	femFullSystemInit(theSystem);
-
-	return theSystem;
-}
-
-void femFullSystemFree(femFullSystem *theSystem)
-{
-	free(theSystem->A);
-	free(theSystem->B);
-	free(theSystem);
-}
-
-
-void femFullSystemInit(femFullSystem *mySystem)
-{
-	int i, size = mySystem->size;
-	for (i = 0; i < size*(size + 1); i++)
-		mySystem->B[i] = 0;
-}
-
-
-void femFullSystemPrint(femFullSystem *mySystem)
-{
-	double  **A, *B;
-	int     i, j, size;
-	A = mySystem->A;
-	B = mySystem->B;
-	size = mySystem->size;
-
-	for (i = 0; i < size; i++) {
-		for (j = 0; j < size; j++)
-			if (A[i][j] == 0)  printf("         ");
-			else               printf(" %+.1e", A[i][j]);
-			printf(" :  %+.1e \n", B[i]);
-	}
-}
-
-void femFullSystemPrintInfos(femFullSystem *mySystem)
-{
-	int  size = mySystem->size;
-	printf(" \n");
-	printf("    Full Gaussian elimination \n");
-	printf("    Storage informations \n");
-	printf("    Matrix size      : %8d\n", size);
-	printf("    Bytes required   : %8d\n", (int)sizeof(double)*size*(size + 1));
-}
-
-void  femFullSystemConstrain(femFullSystem *mySystem, int myNode, double myValue)
-{
-	double  **A, *B;
-	int     i, size;
-
-	A = mySystem->A;
-	B = mySystem->B;
-	size = mySystem->size;
-
-	for (i = 0; i < size; i++) {
-		B[i] -= myValue * A[i][myNode];
-		A[i][myNode] = 0;
-	}
-
-	for (i = 0; i < size; i++)
-		A[myNode][i] = 0;
-
-	A[myNode][myNode] = 1;
-	B[myNode] = myValue;
-}
-
-void femFullSystemAssemble(femFullSystem* mySystem, double *Aloc, double *Bloc, int *map, int nLoc)
-{
-	int i, j;
-	for (i = 0; i < nLoc; i++) {
-		for (j = 0; j < nLoc; j++) {
-			mySystem->A[map[i]][map[j]] += Aloc[i*nLoc + j];
-		}
-		mySystem->B[map[i]] += Bloc[i];
-	}
-}
-
-double* femFullSystemEliminate(femFullSystem *mySystem)
-{
-	double  **A, *B, factor;
-	int     i, j, k, size;
-
-	A = mySystem->A;
-	B = mySystem->B;
-	size = mySystem->size;
-
-	// Gauss elimination
-
-	for (k = 0; k < size; k++) {
-		if (fabs(A[k][k]) <= 1e-8) {
-			printf("Pivot index %d  ", k);
-			printf("Pivot value %e  ", A[k][k]);
-			Error("Cannot eliminate with such a pivot");
-		}
-		for (i = k + 1; i < size; i++) {
-			factor = A[i][k] / A[k][k];
-			for (j = k + 1; j < size; j++)
-				A[i][j] = A[i][j] - A[k][j] * factor;
-			B[i] = B[i] - B[k] * factor;
-		}
-	}
-
-	// Back-substitution
-
-	for (i = size - 1; i >= 0; i--) {
-		factor = 0;
-		for (j = i + 1; j < size; j++)
-			factor += A[i][j] * B[j];
-		B[i] = (B[i] - factor) / A[i][i];
-	}
-
-	return(mySystem->B);
+    int  testConvergence;
+    switch (mySolver->type) {
+        case FEM_BAND : testConvergence = 1; break;
+        default : Error("Unexpected solver type"); }
+    return(testConvergence);
 }
 
 femBandSystem *femBandSystemCreate(int size, int band)
 {
-	femBandSystem *myBandSystem = malloc(sizeof(femBandSystem));
-	myBandSystem->B = malloc(sizeof(double)*size*(band + 1));
-	myBandSystem->A = malloc(sizeof(double*)*size);
-	myBandSystem->size = size;
-	myBandSystem->band = band;
-	myBandSystem->A[0] = myBandSystem->B + size;
-	int i;
-	for (i = 1; i < size; i++)
-		myBandSystem->A[i] = myBandSystem->A[i - 1] + band - 1;
-	femBandSystemInit(myBandSystem);
-	return(myBandSystem);
+    femBandSystem *myBandSystem = malloc(sizeof(femBandSystem));
+    myBandSystem->B = malloc(sizeof(double)*size*(band+1));
+    myBandSystem->A = malloc(sizeof(double*)*size);
+    myBandSystem->size = size;
+    myBandSystem->band = band;
+    myBandSystem->A[0] = myBandSystem->B + size;
+    int i;
+    for (i=1 ; i < size ; i++)
+        myBandSystem->A[i] = myBandSystem->A[i-1] + band - 1;
+    femBandSystemInit(myBandSystem);
+    return(myBandSystem);
 }
 
 void femBandSystemFree(femBandSystem *myBandSystem)
 {
-	free(myBandSystem->B);
-	free(myBandSystem->A);
-	free(myBandSystem);
+    free(myBandSystem->B);
+    free(myBandSystem->A);
+    free(myBandSystem);
 }
 
 void femBandSystemInit(femBandSystem *myBandSystem)
 {
-	int i;
-	int size = myBandSystem->size;
-	int band = myBandSystem->band;
-	for (i = 0; i < size*(band + 1); i++)
-		myBandSystem->B[i] = 0;
+    int i;
+    int size = myBandSystem->size;
+    int band = myBandSystem->band;
+    for (i=0 ; i < size*(band+1) ; i++)
+        myBandSystem->B[i] = 0;
 }
 
 void femBandSystemPrint(femBandSystem *myBand)
 {
-	double  **A, *B;
-	int     i, j, band, size;
-	A = myBand->A;
-	B = myBand->B;
-	size = myBand->size;
-	band = myBand->band;
+    double  **A, *B;
+    int     i, j, band, size;
+    A    = myBand->A;
+    B    = myBand->B;
+    size = myBand->size;
+    band = myBand->band;
 
-	for (i = 0; i < size; i++) {
-		for (j = i; j < i + band; j++)
-			if (A[i][j] == 0) printf("         ");
-			else              printf(" %+.1e", A[i][j]);
-			printf(" :  %+.1e \n", B[i]);
-	}
+    for (i=0; i < size; i++) {
+        for (j=i; j < i+band; j++)
+            if (A[i][j] == 0) printf("         ");
+            else              printf(" %+.1e",A[i][j]);
+        printf(" :  %+.1e \n",B[i]); }
 }
 
 void femBandSystemPrintInfos(femBandSystem *myBand)
 {
-	int size = myBand->size;
-	int band = myBand->band;
-	printf(" \n");
-	printf("    Banded Gaussian elimination \n");
-	printf("    Storage informations \n");
-	printf("    Matrix size      : %8d\n", size);
-	printf("    Matrix band      : %8d\n", band);
-	printf("    Bytes required   : %8d\n", (int)sizeof(double)*size*(band + 1));
+    int size = myBand->size;
+    int band = myBand->band;
+    printf(" \n");
+    printf("    Banded Gaussian elimination \n");
+    printf("    Storage informations \n");
+    printf("    Matrix size      : %8d\n",size);
+    printf("    Matrix band      : %8d\n",band);
+    printf("    Bytes required   : %8d\n",(int)sizeof(double)*size*(band+1));
 }
 
 
 double femBandSystemGet(femBandSystem* myBandSystem, int myRow, int myCol)
 {
-	double value = 0;
-	if (myCol >= myRow && myCol < myRow + myBandSystem->band)  value = myBandSystem->A[myRow][myCol];
-	return(value);
+    double value = 0;
+    if (myCol >= myRow && myCol < myRow+myBandSystem->band)  value = myBandSystem->A[myRow][myCol];
+    return(value);
 }
 
-double femFullSystemGet(femFullSystem* myFullSystem, int myRow, int myCol)
-{
-	return(myFullSystem->A[myRow][myCol]);
-}
 
 void femBandSystemAssemble(femBandSystem* myBandSystem, double *Aloc, double *Bloc, int *map, int nLoc)
 {
-	int i, j;
-	for (i = 0; i < nLoc; i++) {
-		int myRow = map[i];
-		for (j = 0; j < nLoc; j++) {
-			int myCol = map[j];
-			if (myCol >= myRow)  myBandSystem->A[myRow][myCol] += Aloc[i*nLoc + j];
-		}
-		myBandSystem->B[myRow] += Bloc[i];
-	}
+    int i,j;
+    for (i = 0; i < nLoc; i++) {
+        int myRow = map[i];
+        for(j = 0; j < nLoc; j++) {
+            int myCol = map[j];
+            if (myCol >= myRow)  myBandSystem->A[myRow][myCol] += Aloc[i*nLoc+j]; }
+        myBandSystem->B[myRow] += Bloc[i]; }
 }
 
 
-
+/////////GOTTA CHANGE TODO
 void femBandSystemConstrain(femBandSystem *myBand, int myNode, double myValue)
 {
-	double  **A, *B;
-	int     i, size, band, ifirst, iend;
-	A = myBand->A;
-	B = myBand->B;
-	size = myBand->size;
-	band = myBand->band;
+    double  **A, *B;
+    int     i, size, band, ifirst, iend;
+    A    = myBand->A;
+    B    = myBand->B;
+    size = myBand->size;
+    band = myBand->band;
 
-	ifirst = (int) fmax(0, myNode - band + 1);
-	iend = myNode;
-	for (i = ifirst; i < iend; i++) {
-		B[i] -= myValue * A[i][myNode];
-		A[i][myNode] = 0;
-	}
+    ifirst = fmax(0,myNode - band + 1);
+    iend   = myNode;
+    for (i=ifirst; i < iend; i++) {
+        B[i] -= myValue * A[i][myNode];
+        A[i][myNode] = 0; }
 
-	ifirst = myNode + 1;
-	iend = (int) fmin(myNode + band, size);
-	for (i = ifirst; i < iend; i++) {
-		B[i] -= myValue * A[myNode][i];
-		A[myNode][i] = 0;
-	}
+    ifirst = myNode+1;
+    iend = fmin(myNode + band,size);
+    for (i=ifirst; i < iend; i++) {
+        B[i] -= myValue * A[myNode][i];
+        A[myNode][i] = 0; }
 
-	A[myNode][myNode] = 1;
-	B[myNode] = myValue;
+    A[myNode][myNode] = 1;
+    B[myNode] = myValue;
 }
 
 double  *femBandSystemEliminate(femBandSystem *myBand)
 {
-	double  **A, *B, factor;
-	int     i, j, k, jend, size, band;
-	A = myBand->A;
-	B = myBand->B;
-	size = myBand->size;
-	band = myBand->band;
+    double  **A, *B, factor;
+    int     i, j, k, jend, size, band;
+    A    = myBand->A;
+    B    = myBand->B;
+    size = myBand->size;
+    band = myBand->band;
 
-	// Incomplete Cholesky factorization
+    /* Incomplete Cholesky factorization */
 
-	for (k = 0; k < size; k++) {
-		if (fabs(A[k][k]) <= 1e-4) {
-			Error("Cannot eleminate with such a pivot");
-		}
-		jend = (int) fmin(k + band, size);
-		for (i = k + 1; i < jend; i++) {
-			factor = A[k][i] / A[k][k];
-			for (j = i; j < jend; j++)
-				A[i][j] = A[i][j] - A[k][j] * factor;
-			B[i] = B[i] - B[k] * factor;
-		}
-	}
+    for (k=0; k < size; k++) {
+        if ( fabs(A[k][k]) <= 1e-4 ) {
+            Error("Cannot eleminate with such a pivot"); }
+        jend = fmin(k + band,size);
+        for (i = k+1 ; i <  jend; i++) {
+            factor = A[k][i] / A[k][k];
+            for (j = i ; j < jend; j++)
+                A[i][j] = A[i][j] - A[k][j] * factor;
+            B[i] = B[i] - B[k] * factor; }}
 
-	// Back-substitution
+    /* Back-substitution */
 
-	for (i = (size - 1); i >= 0; i--) {
-		factor = 0;
-		jend = (int) fmin(i + band, size);
-		for (j = i + 1; j < jend; j++)
-			factor += A[i][j] * B[j];
-		B[i] = (B[i] - factor) / A[i][i];
-	}
+    for (i = (size-1); i >= 0 ; i--) {
+        factor = 0;
+        jend = fmin(i + band,size);
+        for (j = i+1 ; j < jend; j++)
+            factor += A[i][j] * B[j];
+        B[i] = ( B[i] - factor)/A[i][i]; }
 
-	return(myBand->B);
-}
-
-
-
-femIterativeSolver *femIterativeSolverCreate(int size)
-{
-	femIterativeSolver *mySolver = malloc(sizeof(femIterativeSolver));
-	mySolver->R = malloc(sizeof(double)*size * 4);
-	mySolver->D = mySolver->R + size;
-	mySolver->S = mySolver->R + size * 2;
-	mySolver->X = mySolver->R + size * 3;
-	mySolver->size = size;
-	femIterativeSolverInit(mySolver);
-	return(mySolver);
-}
-
-void femIterativeSolverFree(femIterativeSolver *mySolver)
-{
-	free(mySolver->R);
-	free(mySolver);
-}
-
-void femIterativeSolverInit(femIterativeSolver *mySolver)
-{
-	int i;
-	mySolver->iter = 0;
-	mySolver->error = 10.0e+12;
-	for (i = 0; i < mySolver->size * 4; i++)
-		mySolver->R[i] = 0;
-}
-
-void femIterativeSolverPrint(femIterativeSolver *mySolver)
-{
-	double  *R;
-	int     i, size;
-	R = mySolver->R;
-	size = mySolver->size;
-
-	for (i = 0; i < size; i++) {
-		printf("%d :  %+.1e \n", i, R[i]);
-	}
-}
-
-void femIterativeSolverPrintInfos(femIterativeSolver *mySolver)
-{
-	if (mySolver->iter == 1)     printf("\n    Iterative solver \n");
-	printf("    Iteration %4d : %14.7e\n", mySolver->iter, mySolver->error);
-}
-
-int femIterativeSolverConverged(femIterativeSolver *mySolver)
-{
-	int  testConvergence = 0;
-	if (mySolver->iter  > 3000)     testConvergence = -1;
-	if (mySolver->error < 10.0e-6)  testConvergence = 1;
-	return(testConvergence);
+    return(myBand->B);
 }
 
 femDiffusionProblem *femDiffusionCreate(const char *filename, femSolverType solverType, femRenumType renumType, femGrains *theGrains)
 {
-	int i, band;
-	femDiffusionProblem *theProblem = malloc(sizeof(femDiffusionProblem));
-	theProblem->mesh = femMeshRead(filename);
-	theProblem->edges = femEdgesCreate(theProblem->mesh, theGrains);
-	if (theProblem->mesh->nLocalNode == 4) {
-		theProblem->space = femDiscreteCreate(4, FEM_QUAD);
-		theProblem->rule = femIntegrationCreate(4, FEM_QUAD);
-	}
-	else if (theProblem->mesh->nLocalNode == 3) {
-		theProblem->space = femDiscreteCreate(3, FEM_TRIANGLE);
-		theProblem->rule = femIntegrationCreate(3, FEM_TRIANGLE);
-	}
-	theProblem->size = theProblem->mesh->nNode;
-	theProblem->number = malloc(sizeof(int)*theProblem->size);
-	femDiffusionRenumber(theProblem, renumType);
+    int i,band;
+    femDiffusionProblem *theProblem = malloc(sizeof(femDiffusionProblem));
+    theProblem->mesh  = femMeshRead(filename);
+    theProblem->edges = femEdgesCreate(theProblem->mesh, theGrains);
+    if (theProblem->mesh->nLocalNode == 4) {
+        theProblem->space = femDiscreteCreate(4,FEM_QUAD);
+        theProblem->rule = femIntegrationCreate(4,FEM_QUAD); }
+    else if (theProblem->mesh->nLocalNode == 3) {
+        theProblem->space = femDiscreteCreate(3,FEM_TRIANGLE);
+        theProblem->rule = femIntegrationCreate(3,FEM_TRIANGLE); }
+    theProblem->size = theProblem->mesh->nNode;
+    theProblem->number  = malloc(sizeof(int)*theProblem->size);
+    femDiffusionRenumber(theProblem,renumType);
 
-	switch (solverType) {
-	case FEM_FULL:
-		theProblem->solver = femSolverFullCreate(theProblem->size); break;
-	case FEM_BAND:
-		band = femDiffusionComputeBand(theProblem);
-		theProblem->solver = femSolverBandCreate(theProblem->size, band); break;
-	case FEM_ITER:
-		theProblem->solver = femSolverIterativeCreate(theProblem->size); break;
-	default: Error("Unexpected solver option");
-	}
+    switch (solverType) {
+        case FEM_BAND :
+                band = femDiffusionComputeBand(theProblem);
+                theProblem->solver = femSolverBandCreate(theProblem->size,band); break;
+        default : Error("Unexpected solver option"); }
 
-	theProblem->soluce = malloc(sizeof(double)*theProblem->size);
-	for (i = 0; i < theProblem->size; i++)
-		theProblem->soluce[i] = 0;
+    theProblem->soluce = malloc(sizeof(double)*theProblem->size);
+    for (i = 0; i < theProblem->size; i++)
+        theProblem->soluce[i] = 0;
 
-	return theProblem;
+    return theProblem;
 }
 
 void femDiffusionFree(femDiffusionProblem *theProblem)
 {
-	femIntegrationFree(theProblem->rule);
-	femDiscreteFree(theProblem->space);
-	femEdgesFree(theProblem->edges);
-	femMeshFree(theProblem->mesh);
-	femSolverFree(theProblem->solver);
-	free(theProblem->number);
-	free(theProblem->soluce);
-	free(theProblem);
+    femIntegrationFree(theProblem->rule);
+    femDiscreteFree(theProblem->space);
+    femEdgesFree(theProblem->edges);
+    femMeshFree(theProblem->mesh);
+    femSolverFree(theProblem->solver);
+    free(theProblem->number);
+    free(theProblem->soluce);
+    free(theProblem);
 }
-
 
 void femDiffusionMeshLocal(const femDiffusionProblem *theProblem, const int iElem, int *map, double *x, double *y, double *u)
 {
-	femMesh *theMesh = theProblem->mesh;
-	int j, nLocal = theMesh->nLocalNode;
+    femMesh *theMesh = theProblem->mesh;
+    int j,nLocal = theMesh->nLocalNode;
 
-	for (j = 0; j < nLocal; ++j) {
-		map[j] = theMesh->elem[iElem*nLocal + j];
-		x[j] = theMesh->X[map[j]];
-		y[j] = theMesh->Y[map[j]];
-		u[j] = theProblem->soluce[map[j]];
-		map[j] = theProblem->number[map[j]];
-	}
+    for (j=0; j < nLocal; ++j) {
+        map[j] = theMesh->elem[iElem*nLocal+j];
+        x[j]   = theMesh->X[map[j]];
+        y[j]   = theMesh->Y[map[j]];
+        u[j]   = theProblem->soluce[map[j]];
+        map[j] = theProblem->number[map[j]];
+        }
 }
 
-bool triangleFound(double *X, double *Y, double Xb, double Yb) {
-	double J1 = (X[1] - X[0])*(Yb - Y[0]) - (Xb - X[0])*(Y[1] - Y[0]);
-	double J2 = (X[1] - Xb)*(Y[2] - Yb) - (X[2] - Xb)*(Y[1] - Yb);
-	double J3 = (Xb - X[0])*(Y[2] - Y[0]) - (X[2] - X[0])*(Yb - Y[0]);
-	return (J1 > 0 && J2 > 0 && J3 > 0);
-}
-
-void femDiffusionCompute(femDiffusionProblem *theProblem, femGrains *theGrains)
+void femDiffusionCompute(femDiffusionProblem *theProblem, femGrains *theGrains, int pick)
 {
 	femMesh *theMesh = theProblem->mesh;
 	femIntegration *theRule = theProblem->rule;
@@ -1278,41 +755,56 @@ void femDiffusionCompute(femDiffusionProblem *theProblem, femGrains *theGrains)
 						+ dphidy[i] * dphidy[j]) * jac * weight;
 				}
 			}
-			
+
 			//for (i = 0; i < theSpace->n; i++) {
 			//	Bloc[i] += phi[i] * jac *weight;
 			//}
-			
+
+		}
+			femSolverAssemble(theSolver,Aloc,Bloc,Uloc,map,theSpace->n);
 		}
 
-		/*
-		for (k = 0; k<theGrains->n; k++) {
-			if (triangleFound(Xloc, Yloc, theGrains->x[k], theGrains->y[k])) {
-				for (i = 0; i < theSpace->n; i++) {
-					double x = theGrains->x[k];
-					double y = theGrains->y[k];
-					double X1 = Xloc[0];
-					double X2 = Xloc[1];
-					double X3 = Xloc[2];
-					double Y1 = Yloc[0];
-					double Y2 = Yloc[1];
-					double Y3 = Yloc[2];
-					double xsi = (x*(Y3 - Y1) - (X3 - X1)*y + (X3 - X1)*Y1 - X1 * (Y3 - Y1)) / ((Y3 - Y1)*(X2 - X1) - (X3 - X1)*(Y2 - Y1));
-					double eta = (y - (Y2 - Y1)*xsi - Y1) / (Y3 - Y1);
-					femDiscretePhi2(theSpace, xsi, eta, phi);
-					Aloc[i*(theSpace->n) + j] += theGrains->gamma * phi[i] * phi[j];
-					Bloc[i] += phi[i] * theGrains->gamma* theGrains->vx[k];
+		if (pick == 1) // Y
+		{
+			for (iEdge = 0; iEdge < theEdges->nEdge; iEdge++)
+			{
+				if (theEdges->edges[iEdge].elem[1] == -2)
+				{
+					femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], 0.0);
+					femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], 0.0);
+				}
+				else if (theEdges->edges[iEdge].elem[1] == -1)
+				{
+					int node0 = theEdges->edges[iEdge].node[0];
+					double X0 = theProblem->mesh->X[node0];
+					double Y0 = theProblem->mesh->Y[node0];
+					double theta0 = asin(X0 / theGrains->radiusOut);
+					if (X0 >= 0)
+					{
+						femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], -vExt*sin(theta0));
+					}
+					else
+					{
+						femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], -vExt*sin(theta0));
+					}
+					int node1 = theEdges->edges[iEdge].node[1];
+					double X1 = theProblem->mesh->X[node1];
+					double Y1 = theProblem->mesh->Y[node1];
+					double theta1 = asin(X1 / theGrains->radiusOut);
+					if (X1 >= 0)
+					{
+						femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -vExt*sin(theta1));
+					}
+					else
+					{
+						femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -vExt*sin(theta1));
+					}
 				}
 			}
 		}
-		*/
-
-		femSolverAssemble(theSolver, Aloc, Bloc, Uloc, map, theSpace->n);
-	}
-	
-	
-	
-	for (iEdge = 0; iEdge < theEdges->nEdge; iEdge++) {
+		else // X
+		{
+			for (iEdge = 0; iEdge < theEdges->nEdge; iEdge++) {
 		if (theEdges->edges[iEdge].elem[1] == -2) {
 			femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], 0.0);
 			femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], 0.0);
@@ -1323,153 +815,33 @@ void femDiffusionCompute(femDiffusionProblem *theProblem, femGrains *theGrains)
 			double Y0 = theProblem->mesh->Y[node0];
 			double theta0 = asin(X0 / theGrains->radiusOut);
 			if (Y0 >= 0) {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], theGrains->vOut*cos(theta0));
+				femSolverConstrain(theSolver, number[node0], vExt*cos(theta0));
 			}
 			else {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], -theGrains->vOut*cos(theta0));
+				femSolverConstrain(theSolver, number[node0], -vExt*cos(theta0));
 			}
 			int node1 = theEdges->edges[iEdge].node[1];
 			double X1 = theProblem->mesh->X[node1];
 			double Y1 = theProblem->mesh->Y[node1];
 			double theta1 = asin(X1 / theGrains->radiusOut);
 			if (Y1 >= 0) {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], theGrains->vOut*cos(theta1));
+				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], vExt*cos(theta1));
 			}
 			else {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -theGrains->vOut*cos(theta1));
+				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -vExt*cos(theta1));
 			}
 		}
 	}
-	
-	
-	
-	
-	
+		}
 
-	double *soluce = femSolverEliminate(theSolver);
-	for (i = 0; i < theProblem->mesh->nNode; i++)
-		theProblem->soluce[i] += soluce[number[i]]; //soluce = aplha^k*d^k
+		double *soluce = femSolverEliminate(theSolver);
+		for (i = 0; i < theProblem->mesh->nNode; i++)
+		theProblem->soluce[i] += soluce[number[i]];
 
-}
+	}
 
-
-
-void femDiffusionComputeY(femDiffusionProblem *theProblem, femGrains *theGrains)
+void femDiffusionCombine(femDiffusionProblem *theProblem, femDiffusionProblem *theProblemY, femDiffusionProblem *theProblemX)
 {
-	femMesh *theMesh = theProblem->mesh;
-	femIntegration *theRule = theProblem->rule;
-	femDiscrete *theSpace = theProblem->space;
-	femSolver *theSolver = theProblem->solver;
-	femEdges *theEdges = theProblem->edges;
-	int *number = theProblem->number;
-
-	if (theSpace->n > 4) Error("Unexpected discrete space size !");
-
-	double Xloc[4], Yloc[4], phi[4], dphidxsi[4], dphideta[4], dphidx[4], dphidy[4], Aloc[16], Bloc[4], Uloc[4];
-	int iEdge, iElem, iInteg, i, j, k, map[4];
-
-	for (iElem = 0; iElem < theMesh->nElem; iElem++) {
-		for (i = 0; i < theSpace->n; i++)      Bloc[i] = 0;
-		for (i = 0; i < (theSpace->n)*(theSpace->n); i++) Aloc[i] = 0;
-		femDiffusionMeshLocal(theProblem, iElem, map, Xloc, Yloc, Uloc);
-		for (iInteg = 0; iInteg < theRule->n; iInteg++) {
-			double xsi = theRule->xsi[iInteg];
-			double eta = theRule->eta[iInteg];
-			double weight = theRule->weight[iInteg];
-			femDiscretePhi2(theSpace, xsi, eta, phi);
-			femDiscreteDphi2(theSpace, xsi, eta, dphidxsi, dphideta);
-			double dxdxsi = 0;
-			double dxdeta = 0;
-			double dydxsi = 0;
-			double dydeta = 0;
-			for (i = 0; i < theSpace->n; i++) {
-				dxdxsi += Xloc[i] * dphidxsi[i];
-				dxdeta += Xloc[i] * dphideta[i];
-				dydxsi += Yloc[i] * dphidxsi[i];
-				dydeta += Yloc[i] * dphideta[i];
-			}
-			double jac = fabs(dxdxsi * dydeta - dxdeta * dydxsi);
-			for (i = 0; i < theSpace->n; i++) {
-				dphidx[i] = (dphidxsi[i] * dydeta - dphideta[i] * dydxsi) / jac;
-				dphidy[i] = (dphideta[i] * dxdxsi - dphidxsi[i] * dxdeta) / jac;
-			}
-			for (i = 0; i < theSpace->n; i++) {
-				for (j = 0; j < theSpace->n; j++) {
-					Aloc[i*(theSpace->n) + j] += (dphidx[i] * dphidx[j]
-						+ dphidy[i] * dphidy[j]) * jac * weight;
-				}
-			}
-			/*
-			for (i = 0; i < theSpace->n; i++) {
-			Bloc[i] += phi[i] * jac *weight;
-			}
-			*/
-			
-		}
-
-		/*
-		for (k = 0; k<theGrains->n; k++) {
-			if (triangleFound(Xloc, Yloc, theGrains->x[k], theGrains->y[k])) {
-				for (i = 0; i < theSpace->n; i++) {
-					double x = theGrains->x[k];
-					double y = theGrains->y[k];
-					double X1 = Xloc[0];
-					double X2 = Xloc[1];
-					double X3 = Xloc[2];
-					double Y1 = Yloc[0];
-					double Y2 = Yloc[1];
-					double Y3 = Yloc[2];
-					double xsi = (x*(Y3 - Y1) - (X3 - X1)*y + (X3 - X1)*Y1 - X1 * (Y3 - Y1)) / ((Y3 - Y1)*(X2 - X1) - (X3 - X1)*(Y2 - Y1));
-					double eta = (y - (Y2 - Y1)*xsi - Y1) / (Y3 - Y1);
-					femDiscretePhi2(theSpace, xsi, eta, phi);
-					Aloc[i*(theSpace->n) + j] += theGrains->gamma * phi[i] * phi[j];
-					Bloc[i] += phi[i] * theGrains->gamma* theGrains->vy[k];
-				}
-			}
-		}
-		*/
-		
-
-		femSolverAssemble(theSolver, Aloc, Bloc, Uloc, map, theSpace->n);
-	}
-
-	
-	for (iEdge = 0; iEdge < theEdges->nEdge; iEdge++) {
-		if (theEdges->edges[iEdge].elem[1] == -2) {
-			femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], 0.0);
-			femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], 0.0);
-		}
-		else if (theEdges->edges[iEdge].elem[1] == -1) {
-			int node0 = theEdges->edges[iEdge].node[0];
-			double X0 = theProblem->mesh->X[node0];
-			double Y0 = theProblem->mesh->Y[node0];
-			double theta0 = asin(X0 / theGrains->radiusOut);
-			if (X0 >= 0) {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], -theGrains->vOut*sin(theta0));
-			}
-			else {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[0]], -theGrains->vOut*sin(theta0));
-			}
-			int node1 = theEdges->edges[iEdge].node[1];
-			double X1 = theProblem->mesh->X[node1];
-			double Y1 = theProblem->mesh->Y[node1];
-			double theta1 = asin(X1 / theGrains->radiusOut);
-			if (X1 >= 0) {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -theGrains->vOut*sin(theta1));
-			}
-			else {
-				femSolverConstrain(theSolver, number[theEdges->edges[iEdge].node[1]], -theGrains->vOut*sin(theta1));
-			}
-		}
-	}
-
-	double *soluce = femSolverEliminate(theSolver);
-	for (i = 0; i < theProblem->mesh->nNode; i++)
-		theProblem->soluce[i] += soluce[number[i]]; //soluce = aplha^k*d^k
-
-}
-
-void femDiffusionCombo(femDiffusionProblem *theProblem, femDiffusionProblem *theProblemY, femDiffusionProblem *theProblemX) {
 	int i;
 	for (i = 0; i < theProblem->mesh->nNode; i++)
 		theProblem->soluce[i] = sqrt(theProblemX->soluce[i]* theProblemX->soluce[i] + theProblemY->soluce[i] * theProblemY->soluce[i]);

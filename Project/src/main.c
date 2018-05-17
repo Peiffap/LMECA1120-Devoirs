@@ -1,130 +1,128 @@
-
-/* C EST NOTRE FONCTIOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNNNNNN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/*
  *  main.c
  *  Library for MECA1120 : Finite Elements for dummies
- *  Homework 4 for 17-18 : Discrete Grains
+ *  Project for 17-18
  *
  *  Copyright (C) 2018 UCL-IMMC : Vincent Legat
  *  All rights reserved.
  *
  */
- 
- 
+
+
 #include "glfem.h"
 #include <time.h>
-
+#include <math.h>
 
 int main(void)
-{  
-    
-    
-    int    n = 15;
+{
+
+
+    int    n = 42;
     double radius    = 0.1;
     double mass      = 0.1;
     double radiusIn  = 0.4;
-    double radiusOut = 2.0;    
-    double dt      = 1e-1;
+    double radiusOut = 2.0;
+    double dt      = 5e-2;
     double tEnd    = 20.0;
     double tol     = 1e-6;
     double t       = 0;
     double iterMax = 100;
-    //femGrains* theGrains = femGrainsCreateSimple(n,radius,mass,radiusIn,radiusOut);
-	femGrains* theGrains = femGrainsCreateTiny(radiusIn, radiusOut);
-   
-  //  A decommenter pour obtenir l'exemple de la seance d'exercice :-)
-	//femGrains* theGrains = femGrainsCreateTiny(radiusIn, radiusOut);
 
-	femSolverType solverType = FEM_BAND;
-	femRenumType  renumType = FEM_XNUM;
-	char meshFileName[] = "..\\data\\tiny.txt";
+    femGrains* theGrains = femGrainsCreateSimple(n,radius,mass,radiusIn,radiusOut);
 
-	femDiffusionProblem* theProblemX = NULL;
-	femDiffusionProblem* theProblemY = NULL;
-	femDiffusionProblem* theProblem = NULL;
+	// femPoissonProblem* theProblem = femPoissonCreate("../data/meca1120-projet-meshMedium.txt");
 
-	femGrainsUpdate(theGrains, dt, tol, iterMax, theProblemX, theProblemY, t);
+	femDiffusionProblem* theProblemX = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
+	femDiffusionProblem* theProblemY = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
+	femDiffusionProblem* theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
 
-	theProblemX = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-	theProblemY = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-	theProblem = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-	clock_t tic = clock();
-	femDiffusionCompute(theProblem, theGrains);
-	femDiffusionCompute(theProblemX, theGrains);
-	femDiffusionComputeY(theProblemY, theGrains);
-	femDiffusionCombo(theProblem, theProblemX, theProblemY);
-	t += dt;
-	
+	femGrainsUpdate(theGrains, theProblemX, theProblemY, dt, tol, iterMax);
+
+    // femPoissonSolve(theProblem);
+	femDiffusionCompute(theProblem, theGrains, 0);
+	femDiffusionCompute(theProblemX, theGrains, 0);
+	femDiffusionCompute(theProblemY, theGrains, 1);
+	femDiffusionCombine(theProblem, theProblemX, theProblemY);
 	femSolverPrintInfos(theProblem->solver);
-	printf("    CPU time : %.2f [sec] \n", (clock() - tic) * 1.0 / CLOCKS_PER_SEC);
-	printf("    Maximum value : %.4f\n", femMax(theProblem->soluce, theProblem->size));
-	fflush(stdout);
 
+    // printf("Maximum value : %.4f\n", femMax(theProblem->system->B,theProblem->size));
+    // fflush(stdout);
 
-	int option = 1;
-	femSolverType newSolverType = solverType;
-	femRenumType  newRenumType = renumType;
+  //  A decommenter pour obtenir l'exemple de la seance d'exercice :-)
+  //  femGrains* theGrains = femGrainsCreateTiny(radiusIn,radiusOut);;
 
-
-    GLFWwindow* window = glfemInit("MECA1120 : Projet");
+    GLFWwindow* window = glfemInit("MECA1120 : Project 17-18");
     glfwMakeContextCurrent(window);
-    int theRunningMode = 1;
-    float theVelocityFactor = 0.25;
-     
+    int theRunningMode = 1.0;
+    float theVelocityFactor = 0.05;
 
     do {
         int i,w,h;
         double currentTime = glfwGetTime();
 
-		glfwGetFramebufferSize(window, &w, &h);
-		glfemReshapeWindowsMesh(theProblem->mesh, w, h);
+        glfwGetFramebufferSize(window,&w,&h);
+        glfemReshapeWindows(radiusOut,w,h);
+        char theMessageTime[256];
+        sprintf(theMessageTime,"Time = %g sec",t);
+		/*
+		clock_t tic = clock();
+		int testConvergence;
+		do {
+			femDiffusionCompute(theProblem);
+			femSolverPrintInfos(theProblem->solver);
+			testConvergence = femSolverConverged(theProblem->solver);
+			printf("Thomas. \n");
+		}
+		while (testConvergence == 0);
+		if (testConvergence == -1)  printf("    Iterative solver stopped after a maximum number of iterations\n");
+		printf("    CPU time : %.2f [sec] \n", (clock() - tic) * 1.0 /CLOCKS_PER_SEC);
+		*/
+        glColor3f(1,0,0); glfemDrawMessage(20,460,theMessageTime);
 		glfemPlotField(theProblem->mesh, theProblem->soluce);
-		glColor3f(1.0, 0.0, 0.0); glfemPlotBndIn(theProblem->edges);
-		glColor3f(0.0, 0.0, 1.0); glfemPlotBndOut(theProblem->edges);
-        for (i=0 ;i < theGrains->n; i++) {
-            glColor3f(0.184313,0.5,0.309804); 
-            glfemDrawDisk(theGrains->x[i],theGrains->y[i],theGrains->r[i]); }       
-        //glColor3f(1,0,1); glfemDrawCircle(0,0,radiusOut);
-        //glColor3f(1,0,1); glfemDrawCircle(0,0,radiusIn); 
-        char theMessage[256];
-        sprintf(theMessage,"Time = %g sec",t);
-        glColor3f(1,0,0); glfemDrawMessage(20,460,theMessage);    
+		for (i=0 ;i < theGrains->n; i++) {
+            glColor3f(1,1,1);
+            glfemDrawDisk(theGrains->x[i],theGrains->y[i],theGrains->r[i]); }
+        glColor3f(0,0,0); glfemDrawCircle(0,0,radiusOut);
+        glColor3f(0,0,0); glfemDrawCircle(0,0,radiusIn);
         glfwSwapBuffers(window);
         glfwPollEvents();
- 
+
         if (t < tEnd && theRunningMode == 1) {
-            printf("Time = %4g : ",t);  
+            printf("Time = %4g : ",t);
   //
   // A decommenter pour pouvoir progresser pas par pas
-          //  printf("press CR to compute the next time step >>");
-           // char c= getchar();
+  //          printf("press CR to compute the next time step >>");
+  //          char c= getchar();
   //
-            femGrainsUpdate(theGrains,dt,tol,iterMax, theProblemX, theProblemY, t);
+            femGrainsUpdate(theGrains, theProblemX, theProblemY, dt, tol, iterMax);
+            t += dt; }
 
-			theProblemX = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-			theProblemY = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-			theProblem = femDiffusionCreate(meshFileName, solverType, renumType, theGrains);
-			femDiffusionCompute(theProblem, theGrains);
-			femDiffusionCompute(theProblemX, theGrains);
-			femDiffusionComputeY(theProblemY, theGrains);
-			femDiffusionCombo(theProblem, theProblemX, theProblemY);
-            t += dt; 
-		}
-         
+			theProblemX = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
+			theProblemY = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
+			theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
+
+			femDiffusionCompute(theProblem, theGrains, 0);
+			femDiffusionCompute(theProblemX, theGrains, 0);
+			femDiffusionCompute(theProblemY, theGrains, 1);
+			femDiffusionCombine(theProblem, theProblemX, theProblemY);
+
         while ( glfwGetTime()-currentTime < theVelocityFactor ) {
-          if (glfwGetKey(window,'R') == GLFW_PRESS) 
-        	    theRunningMode = 1; 
-          if (glfwGetKey(window,'S') == GLFW_PRESS) 
+          if (glfwGetKey(window,'R') == GLFW_PRESS)
+        	    theRunningMode = 1;
+          if (glfwGetKey(window,'S') == GLFW_PRESS)
         	    theRunningMode = 0; }
-            
+
+
+
     }
     while (glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	        (!glfwWindowShouldClose(window)));
-	   
-               
-    glfwTerminate(); 
+
+
+    glfwTerminate();
+	femDiffusionFree(theProblem);
+	femDiffusionFree(theProblemX);
+	femDiffusionFree(theProblemY);
     femGrainsFree(theGrains);
     exit(EXIT_SUCCESS);
 }
-
-
-

@@ -27,24 +27,16 @@ void        glfemDrawCircle(double x, double y,double r);
 void        glfemDrawDisk(double x, double y, double r);
 
 
-void        glfemReshapeWindowsDouble(double r, int width, int heigh);
-void		glfemReshapeWindowsMesh(femMesh *theMesh, int width, int heigh);
+void        glfemReshapeWindows(double r, int width, int heigh);
 void 		glfemPlotField(femMesh *theMesh, double *u);
 void 		glfemPlotMesh(femMesh *theMesh);
 void 		glfemPlotEdges(femEdges *theEdges);
 void 		glfemPlotBnd(femEdges *theEdges);
-
-void        glfemMatrix(double **A, int size, int width, int heigh);
-void        glfemPlotSolver(femSolver *theSolver, int size, int width, int heigh);
-
 
 
 void        glfemMessage(char *message);
 void        glfemDrawMessage(int h, int v, char *message);
 void        glfemSetRasterSize(int width, int height);
 GLFWwindow* glfemInit(char *windowName);
-
-void    glfemPlotBndOut(femEdges *theEdges);
-void    glfemPlotBndIn(femEdges *theEdges);
 
 #endif

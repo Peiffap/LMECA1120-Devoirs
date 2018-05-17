@@ -1,6 +1,8 @@
 
 # Created by https://www.gitignore.io/api/c,git,vim,tex,xcode,latex,cmake,linux,macos,windows,valgrind,assembler,visualstudio
 
+Stash/
+
 ### Assembler ###
 *.[sS]
 *.bc
