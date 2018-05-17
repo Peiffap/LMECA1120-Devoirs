@@ -101,7 +101,6 @@ int main(void)
 			theProblemY = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
 			theProblem = femDiffusionCreate("../data/meca1120-projet-meshMedium.txt", FEM_BAND, FEM_XNUM, theGrains);
 
-			femDiffusionCompute(theProblem, theGrains, 0);
 			femDiffusionCompute(theProblemX, theGrains, 0);
 			femDiffusionCompute(theProblemY, theGrains, 1);
 			femDiffusionCombine(theProblem, theProblemX, theProblemY);

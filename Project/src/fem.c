@@ -389,7 +389,7 @@ femEdges *femEdgesCreate(femMesh *theMesh, femGrains *theGrains)
 			  int in = edges[index].node[1];
 			  double xNode = theMesh->X[in];
 			  double yNode = theMesh->Y[in];
-			  if (fabs(xNode) <= theGrains->radiusIn && fabs(yNode) <= theGrains->radiusIn) {
+			  if (xNode * xNode + yNode * yNode <= theGrains->radiusIn * theGrains->radiusOut) {
 				  edges[index].elem[1] = -2;
 			  }
               nBoundary++; }
