@@ -17,8 +17,8 @@ int main(void)
 {
 
 
-    int    n = 42;
-    double radius    = 0.1;
+    int    n = 100;
+    double radius    = 0.04;
     double mass      = 0.1;
     double radiusIn  = 0.4;
     double radiusOut = 2.0;

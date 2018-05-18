@@ -10,7 +10,7 @@
 
 #include "fem.h"
 
-double vExt = 3.0;
+double vExt = 3.3;
 
 femGrains *femGrainsCreateSimple(int n, double r, double m, double radiusIn, double radiusOut)
 {
@@ -22,7 +22,7 @@ femGrains *femGrainsCreateSimple(int n, double r, double m, double radiusIn, dou
     theGrains->radiusOut = radiusOut;
     theGrains->gravity[0] =  0.0;
     theGrains->gravity[1] = -9.81;
-    theGrains->gamma = 3.0;
+    theGrains->gamma = 0.5;
 
 
     theGrains->x  = malloc(n*sizeof(double));
